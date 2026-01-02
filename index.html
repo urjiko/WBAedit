@@ -2,8 +2,14 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>WBA Stat Card Builder</title>
+  
+  <!-- Fontlar -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
       color-scheme: light dark;
@@ -16,7 +22,7 @@
       --radius: 16px;
     }
     *{ box-sizing: border-box; }
-    html,body{ height:100%; }
+    html,body{ height:100%; overscroll-behavior: none; }
     body{
       margin:0;
       background: var(--bg);
@@ -136,9 +142,10 @@
       min-height: 520px;
       display:grid;
       place-items:center;
+      touch-action: none; /* Prevent scroll while dragging on canvas */
     }
 
-    canvas{ display:block; max-width: 100%; height: auto; }
+    canvas{ display:block; max-width: 100%; height: auto; cursor: crosshair; }
 
     .status{
       display:flex;
@@ -231,6 +238,9 @@
 
       <div class="section">
         <h2>3) Panel ve Çıktı</h2>
+        <div class="help" style="margin-bottom:12px;">
+           <b>İpucu:</b> Panel boyutunu görselin üzerindeki kenarlardan <b>sürükleyerek</b> ayarlayabilirsin.
+        </div>
 
         <div class="two">
           <div class="control" style="margin-bottom:0;">
@@ -247,23 +257,13 @@
           </div>
         </div>
 
-        <div class="two" style="margin-top:10px;">
-          <div class="control" style="margin-bottom:0;">
-            <label for="panelInset">Panel kenar boşluğu</label>
-            <div class="row" style="justify-content: space-between; width:100%;">
-              <span class="val">%</span>
-              <span class="val" id="panelInsetVal">4</span>
-            </div>
-            <input id="panelInset" type="range" min="0" max="10" step="1" value="4" />
+        <div class="control" style="margin-top:10px; margin-bottom:0;">
+          <label for="panelInset">Panel kenar boşluğu</label>
+          <div class="row" style="justify-content: space-between; width:100%;">
+            <span class="val">%</span>
+            <span class="val" id="panelInsetVal">4</span>
           </div>
-          <div class="control" style="margin-bottom:0;">
-            <label for="gradientStrength">Gradient gücü</label>
-            <div class="row" style="justify-content: space-between; width:100%;">
-              <span class="val">%</span>
-              <span class="val" id="gradientVal">70</span>
-            </div>
-            <input id="gradientStrength" type="range" min="0" max="100" step="1" value="70" />
-          </div>
+          <input id="panelInset" type="range" min="0" max="10" step="1" value="4" />
         </div>
 
         <div class="two" style="margin-top:10px;">
@@ -276,20 +276,17 @@
             <input id="statsCropTop" type="range" min="35" max="65" step="1" value="47" />
           </div>
           <div class="control" style="margin-bottom:0;">
-            <label for="statsCropSide">Panel yan kırpma (kırpma)</label>
+            <label for="statsCropSide">Veri görseli yan boşluk (kırpma)</label>
             <div class="row" style="justify-content: space-between; width:100%;">
               <span class="val">%</span>
-              <span class="val" id="cropSideVal">7</span>
+              <span class="val" id="cropSideVal">5</span>
             </div>
-            <input id="statsCropSide" type="range" min="0" max="20" step="1" value="7" />
+            <input id="statsCropSide" type="range" min="0" max="12" step="1" value="5" />
           </div>
         </div>
 
         <div class="control" style="margin-top:10px; margin-bottom:0;">
-          <label class="row" style="align-items:center; gap:8px;">
-            <input id="hideHashtags" type="checkbox" />
-            Hashtag satırını kapat (yer açmak için)
-          </label>
+          <label><input id="hideHashtags" type="checkbox" /> Hashtagleri gizle (sığmazsa)</label>
         </div>
       </div>
 
@@ -312,9 +309,8 @@
             <input id="quality" type="range" min="0.4" max="1" step="0.01" value="0.92" />
           </div>
         </div>
-
         <div class="help" style="margin-top:8px;">
-          Logo dosyaları <code>./logos/</code> klasöründe olmalı. Dosya adları: <code>bakirkoynets.png</code> vs. <code>WBA.png</code>.
+          Logo dosyaları <code>./logos/</code> klasöründe olmalı.
         </div>
       </div>
 
@@ -332,30 +328,22 @@
         </div>
         <div>
           <span class="muted">Çıktı:</span>
-          <code>3:4 (1080×1440)</code>
+          <code>3:4</code>
         </div>
       </div>
 
       <div class="help">
-        <b>Not:</b> Bu sürüm “panel görselini kırpıp yapıştırma” MVP’si. OCR ve tek tek istatistik çıkarımı bir sonraki bölüm.
+        <b>İpucu:</b> Panel çizgisini mouse ile tutup sürükleyebilirsin.
       </div>
     </section>
   </main>
 
   <script>
-    // WBA Stat Card Builder (MVP)
-    // - Background image (player)
-    // - Stats screenshot image: crop and place as rounded panel
-    // - Replace realapp.com with team name (right aligned)
-    // - Replace avatar circle with team logo
-    // - Add black->transparent gradient layer between bg and panel
-    // - Add WBA watermark bottom-right
-
     const el = (id) => document.getElementById(id);
 
+    // --- UI
     const bgInput = el('bgInput');
     const statsInput = el('statsInput');
-
     const playerInput = el('playerInput');
     const playersList = el('playersList');
 
@@ -366,14 +354,12 @@
 
     const panelHeight = el('panelHeight');
     const panelInset = el('panelInset');
-    const gradientStrength = el('gradientStrength');
     const statsCropTop = el('statsCropTop');
     const statsCropSide = el('statsCropSide');
     const hideHashtags = el('hideHashtags');
 
     const panelHeightVal = el('panelHeightVal');
     const panelInsetVal = el('panelInsetVal');
-    const gradientVal = el('gradientVal');
     const cropTopVal = el('cropTopVal');
     const cropSideVal = el('cropSideVal');
 
@@ -515,7 +501,6 @@
       return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(file);
         const img = new Image();
-        // same-origin ise sorun yok, ama GitHub raw vs olursa CORS gerekir.
         img.crossOrigin = 'anonymous';
         img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
         img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
@@ -534,58 +519,57 @@
     }
 
     function logoUrlFor(team){
-      const meta = TEAM_META[team];
-      if(!meta?.logo) return null;
-      return `./logos/${meta.logo}`;
+      const file = TEAM_META[team]?.logo;
+      return file ? `./logos/${file}` : null;
     }
 
+    // --- Team detection
     function detectTeamFromPlayerName(name){
       const key = normalize(name);
-      const set = playerToTeams.get(key);
-      if(!set || set.size === 0) return { ok:false, teams:[] };
-      return { ok:true, teams:[...set] };
+      const teams = playerToTeams.get(key);
+      if(!teams || teams.size === 0) return { ok:false, teams: [] };
+      return { ok:true, teams: [...teams] };
     }
 
-    function applyTeam(team, reason){
+    function updateTeamUI(foundTeam, notFound){
+      teamWarn.style.display = notFound ? 'inline-flex' : 'none';
+      teamPill.innerHTML = notFound ? `Takım: <b>-</b>` : `Takım: <b>${escapeHtml(foundTeam)}</b>`;
+    }
+
+    function applyTeam(team, reason='manual'){
       state.selectedTeam = team;
       teamSelect.value = team;
 
-      if(!state.teamNameUserEdited){
+      // display name: kullanıcı elle yazdıysa bozmayalım
+      if(!state.teamNameUserEdited || reason === 'auto'){
         state.teamNameDisplay = team;
-        teamNameOverride.value = '';
+        teamNameOverride.value = team;
+        state.teamNameUserEdited = false; // auto set
       }
-
-      if(reason === 'manual'){
-        // manuel seçince override sıfırlansın istemiyorsan kaldırırız
-      }
-    }
-
-    function updateTeamUI(team, unknown){
-      teamPill.innerHTML = `Takım: <b>${escapeHtml(team)}</b>`;
-      teamWarn.style.display = unknown ? 'inline-flex' : 'none';
     }
 
     // --- Drawing helpers
-    function drawCover(ctx, img, x, y, w, h){
-      const iw = img.naturalWidth || img.width;
-      const ih = img.naturalHeight || img.height;
-      const ir = iw/ih;
-      const r = w/h;
-      let sx=0, sy=0, sw=iw, sh=ih;
-      if(ir > r){
-        sh = ih;
-        sw = Math.round(sh * r);
-        sx = Math.round((iw - sw)/2);
+    function drawCover(ctx, img, dx, dy, dw, dh){
+      const sw = img.naturalWidth || img.width;
+      const sh = img.naturalHeight || img.height;
+      const sRatio = sw/sh;
+      const dRatio = dw/dh;
+
+      let sx=0, sy=0, sW=sw, sH=sh;
+      if(sRatio > dRatio){
+        // source wider -> crop left/right
+        sW = sh * dRatio;
+        sx = (sw - sW) / 2;
       } else {
-        sw = iw;
-        sh = Math.round(sw / r);
-        sy = Math.round((ih - sh)/2);
+        // source taller -> crop top/bottom
+        sH = sw / dRatio;
+        sy = (sh - sH) / 2;
       }
-      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+      ctx.drawImage(img, sx, sy, sW, sH, dx, dy, dw, dh);
     }
 
-    function roundRectPath(ctx, x, y, w, h, r){
-      const rr = Math.min(r, w/2, h/2);
+    function roundRectPath(ctx, x,y,w,h,r){
+      const rr = Math.max(0, Math.min(r, Math.min(w,h)/2));
       ctx.beginPath();
       ctx.moveTo(x+rr, y);
       ctx.arcTo(x+w, y, x+w, y+h, rr);
@@ -595,48 +579,174 @@
       ctx.closePath();
     }
 
-    function drawLogoInCircle(ctx, img, cx, cy, r){
+    // UPDATED: Now Rectangle/Square instead of Circle, opaque #0b0b0b
+    function drawLogoInSquare(ctx, img, cx, cy, size){
+      const half = size/2;
+      const x = cx - half;
+      const y = cy - half;
+      const r = Math.min(12, size*0.15); // yumuşak köşe
+
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI*2);
-      ctx.closePath();
+      // Draw Square Background
+      ctx.fillStyle = '#0b0b0b';
+      roundRectPath(ctx, x, y, size, size, r);
+      ctx.fill();
+
+      // Clip for image
+      roundRectPath(ctx, x, y, size, size, r);
       ctx.clip();
-      // black-ish background
-      ctx.fillStyle = 'rgba(20,20,20,0.9)';
-      ctx.fillRect(cx-r, cy-r, r*2, r*2);
-      // contain
-      const iw = img.naturalWidth || img.width;
-      const ih = img.naturalHeight || img.height;
-      const scale = Math.min((r*2)/iw, (r*2)/ih);
-      const w = iw*scale;
-      const h = ih*scale;
-      ctx.drawImage(img, cx - w/2, cy - h/2, w, h);
+
+      // Draw image fit inside with some padding
+      const pad = size * 0.1; 
+      const dw = size - pad*2;
+      const dh = size - pad*2;
+      const dx = x + pad;
+      const dy = y + pad;
+
+      const sw = img.naturalWidth || img.width;
+      const sh = img.naturalHeight || img.height;
+      const sRatio = sw/sh;
+      const dRatio = dw/dh; // 1:1
+
+      let sx=0, sy=0, sW=sw, sH=sh;
+      if(sRatio > dRatio){
+        sW = sh * dRatio;
+        sx = (sw - sW)/2;
+      } else {
+        sH = sw / dRatio;
+        sy = (sh - sH)/2;
+      }
+
+      ctx.drawImage(img, sx, sy, sW, sH, dx, dy, dw, dh);
       ctx.restore();
     }
 
-    function fitTextRight(ctx, text, xRight, y, maxWidth, fontPx, weight=800){
+    function fitTextRight(ctx, text, xRight, yBaseline, maxWidth, fontPx, fontWeight=800){
       let size = fontPx;
-      while(size > 10){
-        ctx.font = `${weight} ${Math.round(size)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'alphabetic';
+      while(size >= 10){
+        ctx.font = `${fontWeight} ${Math.round(size)}px 'Oswald', sans-serif`;
         const w = ctx.measureText(text).width;
         if(w <= maxWidth) break;
         size -= 1;
       }
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'alphabetic';
-      ctx.fillText(text, xRight, y);
+      ctx.fillText(text, xRight, yBaseline);
+      return size;
     }
 
-    // --- Render
+    // --- Interaction Logic (Drag)
+    let isDragging = null; // 'top' | 'side' | null
+
+    function getCanvasPos(evt){
+      const rect = out.getBoundingClientRect();
+      const scaleX = out.width / rect.width;
+      const scaleY = out.height / rect.height;
+      
+      let clientX = evt.clientX;
+      let clientY = evt.clientY;
+      
+      if(evt.touches && evt.touches.length > 0){
+        clientX = evt.touches[0].clientX;
+        clientY = evt.touches[0].clientY;
+      }
+
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    // Listeners for drag
+    function onDown(e){
+      const {x, y} = getCanvasPos(e);
+      const inset = (Number(panelInset.value)/100) * OUT_W;
+      const pH = (Number(panelHeight.value)/100) * OUT_H;
+      const pY = OUT_H - inset - pH;
+
+      const TOLERANCE = 50; // pixels in canvas space
+
+      // Check Top Edge (controls Height)
+      // Line is at pY.
+      if(Math.abs(y - pY) < TOLERANCE){
+        isDragging = 'top';
+        out.style.cursor = 'ns-resize';
+        return;
+      }
+
+      // Check Left/Right Edge (controls Inset)
+      // Left line is at inset, Right line is at OUT_W - inset
+      // We check if we are near either vertical edge of the panel
+      if(Math.abs(x - inset) < TOLERANCE || Math.abs(x - (OUT_W - inset)) < TOLERANCE){
+        isDragging = 'side';
+        out.style.cursor = 'ew-resize';
+        return;
+      }
+    }
+
+    function onMove(e){
+      const {x, y} = getCanvasPos(e);
+      const inset = (Number(panelInset.value)/100) * OUT_W;
+      const pH = (Number(panelHeight.value)/100) * OUT_H;
+      const pY = OUT_H - inset - pH;
+      const TOLERANCE = 50;
+
+      if(!isDragging){
+        // Just hover effect
+        if(Math.abs(y - pY) < TOLERANCE) out.style.cursor = 'ns-resize';
+        else if(Math.abs(x - inset) < TOLERANCE || Math.abs(x - (OUT_W - inset)) < TOLERANCE) out.style.cursor = 'ew-resize';
+        else out.style.cursor = 'crosshair';
+        return;
+      }
+      
+      if(isDragging === 'top'){
+        // Calculate new height based on y
+        // pY = y -> OUT_H - inset - newH = y -> newH = OUT_H - inset - y
+        const newH_px = OUT_H - inset - y;
+        let newH_pct = (newH_px / OUT_H) * 100;
+        newH_pct = Math.max(32, Math.min(55, newH_pct)); // Clamp
+        panelHeight.value = Math.round(newH_pct);
+        syncVals();
+        render();
+      } 
+      else if(isDragging === 'side'){
+        // Calculate new inset based on x
+        // inset = x (if left side) or OUT_W - x (if right side)
+        // Simplest: use distance from nearest edge
+        let newInset_px = x;
+        if(x > OUT_W/2) newInset_px = OUT_W - x;
+        
+        let newInset_pct = (newInset_px / OUT_W) * 100;
+        newInset_pct = Math.max(0, Math.min(10, newInset_pct)); // Clamp
+        panelInset.value = Math.round(newInset_pct);
+        syncVals();
+        render();
+      }
+    }
+
+    function onUp(){
+      isDragging = null;
+    }
+
+    out.addEventListener('mousedown', onDown);
+    out.addEventListener('mousemove', onMove);
+    out.addEventListener('mouseup', onUp);
+    out.addEventListener('mouseleave', onUp);
+
+    out.addEventListener('touchstart', (e)=>{ e.preventDefault(); onDown(e); }, {passive: false});
+    out.addEventListener('touchmove', (e)=>{ e.preventDefault(); onMove(e); }, {passive: false});
+    out.addEventListener('touchend', (e)=>{ e.preventDefault(); onUp(); });
+
+    // --- Core render
     async function render(){
       ctx.clearRect(0,0,OUT_W,OUT_H);
 
-      // Placeholder
+      // placeholder
       if(!state.bgImg){
-        ctx.fillStyle = 'rgba(127,127,127,.12)';
+        ctx.fillStyle = 'rgba(127,127,127,.15)';
         ctx.fillRect(0,0,OUT_W,OUT_H);
-        ctx.fillStyle = 'rgba(255,255,255,.75)';
-        ctx.font = '800 28px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+        ctx.fillStyle = 'rgba(127,127,127,.55)';
+        ctx.font = '700 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
         ctx.textAlign = 'center';
         ctx.fillText('Arkaplan fotoğrafını yükle.', OUT_W/2, OUT_H/2);
         state.lastRenderOk = false;
@@ -655,8 +765,8 @@
       const pY = OUT_H - inset - pH;
       const pR = Math.round(Math.min(pW, pH) * 0.05);
 
-      // Gradient between background and panel
-      const strength = Number(gradientStrength.value)/100;
+      // Gradient (Fixed 100% Strength)
+      const strength = 1.0; 
       const gTop = Math.max(0, pY - OUT_H*0.18);
       const grad = ctx.createLinearGradient(0, gTop, 0, pY + pH);
       grad.addColorStop(0, `rgba(0,0,0,0)`);
@@ -667,73 +777,66 @@
 
       // Draw panel from stats screenshot
       if(state.statsImg){
-        // source crop
         const topPct = Number(statsCropTop.value)/100;
         const sidePct = Number(statsCropSide.value)/100;
         const sw = state.statsImg.naturalWidth || state.statsImg.width;
         const sh = state.statsImg.naturalHeight || state.statsImg.height;
 
         const sx = Math.round(sw * sidePct);
-        const sy = Math.round(sh * sidePct); // NOTE: placeholder, replaced below
+        const sy = Math.round(sh * topPct);
         const sW = Math.round(sw * (1 - sidePct*2));
         const sH = Math.round(sh * (1 - topPct));
 
-        // Clip rounded rect
         ctx.save();
         roundRectPath(ctx, pX, pY, pW, pH, pR);
         ctx.clip();
-
-        // Compute cover for crop region
+        
+        // Draw stats image
         const cropRatio = sW/sH;
         const panelRatio = pW/pH;
-        let csx = Math.round(sw * sidePct);
-        let csy = Math.round(sh * topPct);
-        let csw = sW;
-        let csh = sH;
+        let csx = sx, csy = sy, csw = sW, csh = sH;
         if(cropRatio > panelRatio){
           csw = Math.round(csh * panelRatio);
-          csx = Math.round(csx + (sW - csw)/2);
+          csx = Math.round(sx + (sW - csw)/2);
         } else {
           csh = Math.round(csw / panelRatio);
-          csy = Math.round(csy + (sH - csh)/2);
+          csy = Math.round(sy + (sH - csh)/2);
         }
         ctx.drawImage(state.statsImg, csx, csy, csw, csh, pX, pY, pW, pH);
 
-        // --- Patch 1: avatar circle -> team logo
+        // --- Patch 1: avatar circle -> team logo (SQUARE now)
         if(state.logoImg){
           const cx = pX + pW * 0.16;
           const cy = pY + pH * 0.13;
-          const r  = pW * 0.058;
-          drawLogoInCircle(ctx, state.logoImg, cx, cy, r);
+          const size = pW * 0.12; // Diameter approximation -> Square Size
+          // Use square drawing function
+          drawLogoInSquare(ctx, state.logoImg, cx, cy, size);
         }
 
-        // --- Patch 2: "realapp.com" -> team name (right aligned)
-        const teamText = (teamNameOverride.value || state.teamNameDisplay || '').trim();
+        // --- Patch 2: Team Name (Opaque #0b0b0b)
+        const teamText = (teamNameOverride.value || state.teamNameDisplay || '').trim().toUpperCase();
         if(teamText){
           const rx0 = pX + pW * 0.64;
           const ry0 = pY + pH * 0.235;
           const rw  = pW * 0.33;
           const rh  = pH * 0.12;
 
-          // cover old text area
           ctx.save();
-          ctx.fillStyle = 'rgba(0,0,0,0.78)';
+          ctx.fillStyle = '#0b0b0b'; // Opaque Dark
           roundRectPath(ctx, rx0, ry0, rw, rh, Math.min(12, rh*0.35));
           ctx.fill();
           ctx.restore();
 
-          // draw text (right aligned)
           ctx.save();
           ctx.fillStyle = 'rgba(255,255,255,0.95)';
           const xRight = rx0 + rw - pW*0.02;
           const yBase = ry0 + rh*0.72;
           const maxW = rw - pW*0.04;
           const baseFont = Math.max(14, pH * 0.06);
-          fitTextRight(ctx, teamText, xRight, yBase, maxW, baseFont, 800);
+          fitTextRight(ctx, teamText, xRight, yBase, maxW, baseFont, 700);
           ctx.restore();
         }
 
-        // Optional: hashtags hide
         if(hideHashtags.checked){
           const hx = pX + pW * 0.10;
           const hy = pY + pH * 0.38;
@@ -748,7 +851,6 @@
 
         ctx.restore();
       } else {
-        // no stats image
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         roundRectPath(ctx, pX, pY, pW, pH, pR);
@@ -760,13 +862,13 @@
         ctx.restore();
       }
 
-      // WBA watermark
+      // WBA watermark (Smaller)
       if(!state.wbaImg){
         try{ state.wbaImg = await loadUrlAsImage('./logos/WBA.png'); }
         catch{ /* ignore */ }
       }
       if(state.wbaImg){
-        const wmW = OUT_W * 0.085;
+        const wmW = OUT_W * 0.06; // Reduced from 0.085 to 0.06
         const ratio = (state.wbaImg.naturalHeight || state.wbaImg.height) / (state.wbaImg.naturalWidth || state.wbaImg.width);
         const wmH = wmW * ratio;
         const pad = OUT_W * 0.03;
@@ -795,7 +897,7 @@
     function syncVals(){
       panelHeightVal.textContent = panelHeight.value;
       panelInsetVal.textContent = panelInset.value;
-      gradientVal.textContent = gradientStrength.value;
+      // gradientVal.textContent = gradientStrength.value; // removed
       cropTopVal.textContent = statsCropTop.value;
       cropSideVal.textContent = statsCropSide.value;
       qVal.textContent = Number(quality.value).toFixed(2);
@@ -811,10 +913,7 @@
         setStatus('İki görseli de yükle.');
         return;
       }
-
-      // logo
       await refreshLogo();
-
       await render();
       setStatus('Hazır. Export alabilirsin.');
     }
@@ -824,11 +923,9 @@
         setStatus('Önce Generate. (Evet, sırayla.)');
         return;
       }
-
       const mime = formatSel.value;
       const q = Number(quality.value);
       const dataUrl = out.toDataURL(mime, q);
-
       const a = document.createElement('a');
       const ext = mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'jpg');
       a.download = `wba_${Date.now()}.${ext}`;
@@ -836,7 +933,6 @@
       document.body.appendChild(a);
       a.click();
       a.remove();
-
       setStatus('Export edildi (indirildi).');
     }
 
@@ -876,7 +972,6 @@
         teamWarn.style.display = 'none';
         return;
       }
-
       const res = detectTeamFromPlayerName(name);
       if(!res.ok){
         updateTeamUI('-', true);
@@ -884,7 +979,6 @@
         setStatus('Takım bulunamadı. Takımı dropdown\'dan seç.');
         return;
       }
-
       if(res.teams.length === 1){
         applyTeam(res.teams[0], 'auto');
         updateTeamUI(res.teams[0], false);
@@ -892,7 +986,6 @@
         await refreshLogo();
         await render();
       } else {
-        // birden fazla takım çıkarsa (pratikte beklemiyoruz)
         updateTeamUI('-', true);
         teamWarn.style.display = 'inline-flex';
         setStatus('Aynı isim birden fazla takımda. Takımı manuel seç.');
@@ -912,7 +1005,7 @@
       await render();
     });
 
-    [panelHeight, panelInset, gradientStrength, statsCropTop, statsCropSide].forEach(inp => {
+    [panelHeight, panelInset, statsCropTop, statsCropSide].forEach(inp => {
       inp.addEventListener('input', async () => {
         syncVals();
         await render();
@@ -934,6 +1027,7 @@
 
     // First render placeholder
     render();
+    generateBtn.disabled = !(state.bgImg && state.statsImg);
   </script>
 </body>
 </html>
