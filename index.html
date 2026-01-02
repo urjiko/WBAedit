@@ -1,1 +1,1015 @@
-htmlhtmlhtml
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fotoğraf Editörü</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: Canvas;
+      --fg: CanvasText;
+      --muted: color-mix(in oklab, CanvasText 55%, transparent);
+      --line: color-mix(in oklab, CanvasText 18%, transparent);
+      --card: color-mix(in oklab, Canvas 92%, CanvasText 8%);
+      --accent: color-mix(in oklab, CanvasText 75%, transparent);
+      --radius: 16px;
+    }
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: color-mix(in oklab, var(--bg) 80%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 240px;
+    }
+    .dot{ width: 12px; height: 12px; border-radius: 99px; background: var(--accent); opacity:.9; }
+    .brand h1{ font-size: 16px; margin:0; letter-spacing:.2px; }
+    .brand span{ font-size: 12px; opacity: .75; }
+    .actions{ display:flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+      .brand{ min-width: unset; }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: color-mix(in oklab, var(--bg) 92%, var(--card) 8%);
+      box-shadow: 0 10px 30px color-mix(in oklab, CanvasText 10%, transparent);
+    }
+
+    .panel{
+      padding: 14px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section{
+      border: 1px dashed color-mix(in oklab, CanvasText 18%, transparent);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .section h2{
+      margin:0 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .75;
+    }
+
+    .row{ display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
+
+    .btn{
+      appearance: none;
+      border: 1px solid var(--line);
+      background: color-mix(in oklab, var(--bg) 92%, CanvasText 8%);
+      color: var(--fg);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: transform .05s ease, filter .12s ease;
+      user-select: none;
+    }
+    .btn:hover{ filter: brightness(1.05); }
+    .btn:active{ transform: translateY(1px); }
+    .btn[disabled]{ opacity: .45; cursor: not-allowed; }
+    .btn.primary{
+      border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
+      background: color-mix(in oklab, var(--accent) 18%, var(--bg));
+    }
+    .btn.danger{
+      border-color: color-mix(in oklab, #ff3b30 45%, var(--line));
+    }
+
+    .file{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      width: 100%;
+    }
+    input[type="file"]{
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
+      color: var(--fg);
+      font-size: 13px;
+    }
+
+    label{
+      font-size: 12px;
+      opacity: .85;
+    }
+
+    .control{
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    input[type="range"]{ width: 100%; }
+    .val{ font-variant-numeric: tabular-nums; opacity: .75; font-size: 12px; }
+
+    .presetGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .chip{
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      text-align:center;
+      user-select: none;
+      background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
+    }
+    .chip.active{
+      border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+      background: color-mix(in oklab, var(--accent) 14%, var(--bg));
+      font-weight: 700;
+    }
+
+    .stage{
+      padding: 12px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .canvasWrap{
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient( circle at 20% 20%, color-mix(in oklab, CanvasText 12%, transparent), transparent 45%),
+        radial-gradient( circle at 80% 30%, color-mix(in oklab, CanvasText 10%, transparent), transparent 45%),
+        color-mix(in oklab, Canvas 90%, CanvasText 10%);
+      min-height: 420px;
+      display:grid;
+      place-items:center;
+    }
+
+    canvas{ display:block; max-width: 100%; height: auto; }
+
+    .overlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+
+    .status{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: color-mix(in oklab, var(--bg) 95%, CanvasText 5%);
+      font-size: 12px;
+      opacity: .92;
+    }
+    .status code{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .muted{ opacity: .75; }
+
+    .help{
+      font-size: 12px;
+      line-height: 1.35;
+      opacity: .8;
+    }
+    .help b{ opacity: .95; }
+
+    select{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
+      color: var(--fg);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 420px){
+      .two{ grid-template-columns: 1fr; }
+    }
+
+    .kbd{ border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; opacity:.85; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="dot" aria-hidden="true"></div>
+        <div>
+          <h1>Fotoğraf Editörü</h1>
+          <span class="muted">Tek dosya, sıfır bağımlılık. Çünkü hayat zaten yeterince karmaşık.</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="undoBtn" disabled>Undo</button>
+        <button class="btn" id="redoBtn" disabled>Redo</button>
+        <button class="btn danger" id="resetBtn" disabled>Reset</button>
+        <button class="btn primary" id="exportBtn" disabled>Export</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="card panel">
+      <div class="section">
+        <h2>1) Fotoğraf Yükle</h2>
+        <div class="file">
+          <input id="fileInput" type="file" accept="image/*" />
+        </div>
+        <div class="help" style="margin-top:8px;">
+          Büyük görselleri tarayıcı öldürmesin diye <b>en uzun kenarı 1600px</b>'e indiriyoruz.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>2) Dönüştür</h2>
+        <div class="row">
+          <button class="btn" id="rotL" disabled>⟲ 90°</button>
+          <button class="btn" id="rotR" disabled>⟳ 90°</button>
+          <button class="btn" id="flipH" disabled>↔ Flip</button>
+          <button class="btn" id="flipV" disabled>↕ Flip</button>
+        </div>
+        <div class="help" style="margin-top:8px;">
+          Bu butonlar <b>kalıcı</b> değişiklik yapar (Undo ile geri alırsın).
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>3) Ayarlar</h2>
+
+        <div class="control">
+          <div class="row" style="justify-content: space-between; width:100%;">
+            <label for="brightness">Brightness</label>
+            <span class="val" id="bVal">0</span>
+          </div>
+          <input id="brightness" type="range" min="-100" max="100" value="0" disabled />
+        </div>
+
+        <div class="control">
+          <div class="row" style="justify-content: space-between; width:100%;">
+            <label for="contrast">Contrast</label>
+            <span class="val" id="cVal">0</span>
+          </div>
+          <input id="contrast" type="range" min="-100" max="100" value="0" disabled />
+        </div>
+
+        <div class="control">
+          <div class="row" style="justify-content: space-between; width:100%;">
+            <label for="saturation">Saturation</label>
+            <span class="val" id="sVal">0</span>
+          </div>
+          <input id="saturation" type="range" min="-100" max="100" value="0" disabled />
+        </div>
+
+        <div class="control" style="margin-bottom: 6px;">
+          <div class="row" style="justify-content: space-between; width:100%;">
+            <label for="blur">Blur</label>
+            <span class="val" id="blVal">0</span>
+          </div>
+          <input id="blur" type="range" min="0" max="10" step="1" value="0" disabled />
+        </div>
+
+        <div class="row" style="justify-content: space-between;">
+          <button class="btn primary" id="applyBtn" disabled>Apply (Kalıcılaştır)</button>
+          <button class="btn" id="resetAdjBtn" disabled>Reset Ayarlar</button>
+        </div>
+        <div class="help" style="margin-top:8px;">
+          Slider'lar <b>önizleme</b> yapar. <b>Apply</b> basınca kalıcı olur (Undo ile geri alınır).
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4) Filtreler</h2>
+        <div class="presetGrid" id="presetGrid">
+          <div class="chip" data-preset="none">None</div>
+          <div class="chip" data-preset="grayscale">Gray</div>
+          <div class="chip" data-preset="sepia">Sepia</div>
+          <div class="chip" data-preset="invert">Invert</div>
+          <div class="chip" data-preset="vintage">Vintage</div>
+          <div class="chip" data-preset="cool">Cool</div>
+        </div>
+        <div class="help" style="margin-top:8px;">
+          Filtre seçimi de önizlemedir. <b>Apply</b> basınca kalıcı.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>5) Kırpma</h2>
+        <div class="row">
+          <button class="btn" id="cropModeBtn" disabled>Crop Mode</button>
+          <button class="btn primary" id="cropApplyBtn" disabled>Crop Apply</button>
+          <button class="btn" id="cropCancelBtn" disabled>Cancel</button>
+        </div>
+        <div class="help" style="margin-top:8px;">
+          Crop Mode: tuvale tıklayıp sürükle. Sonra <b>Crop Apply</b>.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Export Ayarları</h2>
+        <div class="two">
+          <div class="control" style="margin-bottom:0;">
+            <label for="format">Format</label>
+            <select id="format" disabled>
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPG</option>
+              <option value="image/webp">WEBP</option>
+            </select>
+          </div>
+          <div class="control" style="margin-bottom:0;">
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <label for="quality">Quality (JPG/WEBP)</label>
+              <span class="val" id="qVal">0.92</span>
+            </div>
+            <input id="quality" type="range" min="0.4" max="1" step="0.01" value="0.92" disabled />
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <section class="card stage">
+      <div class="canvasWrap" id="canvasWrap">
+        <canvas id="canvas" width="960" height="540" aria-label="Fotoğraf Önizleme"></canvas>
+        <canvas class="overlay" id="overlay" width="960" height="540" aria-hidden="true"></canvas>
+      </div>
+
+      <div class="status">
+        <div>
+          <span class="muted">Durum:</span>
+          <span id="statusText">Fotoğraf yükle.</span>
+        </div>
+        <div>
+          <span class="muted">Kısayol:</span>
+          <span class="kbd">Ctrl</span> + <span class="kbd">Z</span> Undo, <span class="kbd">Ctrl</span> + <span class="kbd">Y</span> Redo
+        </div>
+        <div>
+          <span class="muted">Boyut:</span>
+          <code id="dimText">-</code>
+        </div>
+      </div>
+
+      <div class="help">
+        <b>Not:</b> Bu editör tamamen tarayıcı içinde çalışır. Sunucu yok, takip yok, dram yok.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // -----------------------------
+    // Basit, bağımlılıksız fotoğraf editörü (Canvas 2D)
+    // - Yükle, rotate/flip (kalıcı), slider ayarları + preset filtre (önizleme)
+    // - Apply: önizlemeyi kalıcılaştırır (Undo/Redo)
+    // - Crop: sürükle seç, uygula (kalıcı)
+    // - Export: PNG/JPG/WEBP
+    // -----------------------------
+
+    const MAX_SIDE = 1600; // import'ta en uzun kenarı sınırlıyoruz
+    const HISTORY_MAX = 8; // bellek dostu olmaya çalışıyoruz
+
+    const el = (id) => document.getElementById(id);
+
+    const fileInput = el('fileInput');
+    const canvas = el('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: false });
+
+    const overlay = el('overlay');
+    const octx = overlay.getContext('2d');
+
+    const statusText = el('statusText');
+    const dimText = el('dimText');
+
+    const undoBtn = el('undoBtn');
+    const redoBtn = el('redoBtn');
+    const resetBtn = el('resetBtn');
+    const exportBtn = el('exportBtn');
+
+    const rotL = el('rotL');
+    const rotR = el('rotR');
+    const flipH = el('flipH');
+    const flipV = el('flipV');
+
+    const brightness = el('brightness');
+    const contrast = el('contrast');
+    const saturation = el('saturation');
+    const blur = el('blur');
+
+    const bVal = el('bVal');
+    const cVal = el('cVal');
+    const sVal = el('sVal');
+    const blVal = el('blVal');
+
+    const applyBtn = el('applyBtn');
+    const resetAdjBtn = el('resetAdjBtn');
+
+    const presetGrid = el('presetGrid');
+
+    const cropModeBtn = el('cropModeBtn');
+    const cropApplyBtn = el('cropApplyBtn');
+    const cropCancelBtn = el('cropCancelBtn');
+
+    const formatSel = el('format');
+    const quality = el('quality');
+    const qVal = el('qVal');
+
+    // Offscreen base canvas: "kalıcı" görüntü burada durur.
+    const base = document.createElement('canvas');
+    const bctx = base.getContext('2d', { willReadFrequently: false });
+
+    const state = {
+      hasImage: false,
+      preset: 'none',
+      crop: {
+        enabled: false,
+        dragging: false,
+        startX: 0,
+        startY: 0,
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+      },
+      history: [], // {w,h,data: ImageData}
+      future: [],
+    };
+
+    function setStatus(msg){
+      statusText.textContent = msg;
+    }
+
+    function enableUI(on){
+      [undoBtn, redoBtn, resetBtn, exportBtn,
+       rotL, rotR, flipH, flipV,
+       brightness, contrast, saturation, blur,
+       applyBtn, resetAdjBtn,
+       cropModeBtn, cropApplyBtn, cropCancelBtn,
+       formatSel, quality
+      ].forEach(x => x.disabled = !on);
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    function updateVals(){
+      bVal.textContent = brightness.value;
+      cVal.textContent = contrast.value;
+      sVal.textContent = saturation.value;
+      blVal.textContent = blur.value;
+      qVal.textContent = Number(quality.value).toFixed(2);
+    }
+
+    function setPreset(p){
+      state.preset = p;
+      [...presetGrid.querySelectorAll('.chip')].forEach(ch => {
+        ch.classList.toggle('active', ch.dataset.preset === p);
+      });
+      render();
+    }
+
+    function resetAdjustments(){
+      brightness.value = 0;
+      contrast.value = 0;
+      saturation.value = 0;
+      blur.value = 0;
+      setPreset('none');
+      updateVals();
+      render();
+    }
+
+    function cssFilterFromState(){
+      const b = Number(brightness.value);
+      const c = Number(contrast.value);
+      const s = Number(saturation.value);
+      const bl = Number(blur.value);
+
+      // Canvas filter: brightness(%) contrast(%) saturate(%) blur(px)
+      // 0 slider => 100%
+      const brightnessPct = 100 + b;
+      const contrastPct = 100 + c;
+      const saturatePct = 100 + s;
+
+      const preset = state.preset;
+      const presetFilter = {
+        none: '',
+        grayscale: ' grayscale(100%)',
+        sepia: ' sepia(100%)',
+        invert: ' invert(100%)',
+        vintage: ' sepia(30%) contrast(110%) saturate(85%)',
+        cool: ' hue-rotate(200deg) saturate(110%)',
+      }[preset] || '';
+
+      const blurPart = bl > 0 ? ` blur(${bl}px)` : '';
+
+      return `brightness(${brightnessPct}%) contrast(${contrastPct}%) saturate(${saturatePct}%)${blurPart}${presetFilter}`.trim();
+    }
+
+    function fitCanvasTo(w, h){
+      canvas.width = w;
+      canvas.height = h;
+      overlay.width = w;
+      overlay.height = h;
+      dimText.textContent = `${w}×${h}`;
+    }
+
+    function render(){
+      if(!state.hasImage){
+        // placeholder
+        fitCanvasTo(960, 540);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = 'rgba(127,127,127,.15)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = 'rgba(127,127,127,.55)';
+        ctx.font = '600 16px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Bir fotoğraf yükle (sol panel).', canvas.width/2, canvas.height/2);
+        octx.clearRect(0,0,overlay.width,overlay.height);
+        return;
+      }
+
+      fitCanvasTo(base.width, base.height);
+      ctx.save();
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.filter = cssFilterFromState();
+      ctx.drawImage(base, 0, 0);
+      ctx.restore();
+
+      drawCropOverlay();
+    }
+
+    function pushHistory(){
+      if(!state.hasImage) return;
+      const img = bctx.getImageData(0,0,base.width, base.height);
+      // Kopya
+      const copy = new ImageData(new Uint8ClampedArray(img.data), img.width, img.height);
+      state.history.push({ w: base.width, h: base.height, data: copy });
+      if(state.history.length > HISTORY_MAX) state.history.shift();
+      // Yeni işlem yapınca redo temizlenir
+      state.future.length = 0;
+      syncHistoryButtons();
+    }
+
+    function syncHistoryButtons(){
+      undoBtn.disabled = !state.hasImage || state.history.length === 0;
+      redoBtn.disabled = !state.hasImage || state.future.length === 0;
+    }
+
+    function restoreSnapshot(snap){
+      base.width = snap.w;
+      base.height = snap.h;
+      bctx.putImageData(snap.data, 0, 0);
+      render();
+      setStatus('Geri alındı.');
+    }
+
+    function undo(){
+      if(state.history.length === 0) return;
+      const current = bctx.getImageData(0,0,base.width, base.height);
+      const curCopy = new ImageData(new Uint8ClampedArray(current.data), current.width, current.height);
+      state.future.push({ w: base.width, h: base.height, data: curCopy });
+      const prev = state.history.pop();
+      restoreSnapshot(prev);
+      syncHistoryButtons();
+    }
+
+    function redo(){
+      if(state.future.length === 0) return;
+      const current = bctx.getImageData(0,0,base.width, base.height);
+      const curCopy = new ImageData(new Uint8ClampedArray(current.data), current.width, current.height);
+      state.history.push({ w: base.width, h: base.height, data: curCopy });
+      const next = state.future.pop();
+      restoreSnapshot(next);
+      syncHistoryButtons();
+      setStatus('İleri alındı.');
+    }
+
+    function resetAll(){
+      if(!state.hasImage) return;
+      // reset: ilk yüklenmiş haline dönmek için history'nin en eski snapshot'ına gitmek yok; onun yerine history+future temizleyip
+      // "orijinal"i ayrıca saklamak gerekirdi. MVP'de reset: en son commit edilmiş base'i bırakıp ayarları sıfırlarız.
+      // Daha gerçek reset istiyorsan, orijinali ayrıca saklarız.
+      resetAdjustments();
+      setStatus('Ayarlar sıfırlandı (kalıcı görüntü aynı).');
+    }
+
+    function applyAdjustments(){
+      if(!state.hasImage) return;
+      // Önce base'i history'e kaydet
+      pushHistory();
+
+      // view'deki filtreli görüntüyü base'e yaz
+      const tmp = document.createElement('canvas');
+      tmp.width = base.width;
+      tmp.height = base.height;
+      const tctx = tmp.getContext('2d');
+      tctx.filter = cssFilterFromState();
+      tctx.drawImage(base, 0, 0);
+
+      base.width = tmp.width;
+      base.height = tmp.height;
+      bctx.clearRect(0,0,base.width, base.height);
+      bctx.drawImage(tmp, 0, 0);
+
+      // Ayarları nötrle
+      resetAdjustments();
+      setStatus('Ayarlar kalıcılaştırıldı.');
+    }
+
+    function rotate(deg){
+      if(!state.hasImage) return;
+      pushHistory();
+
+      const rad = deg * Math.PI / 180;
+      const w = base.width;
+      const h = base.height;
+      const nw = (deg % 180 === 0) ? w : h;
+      const nh = (deg % 180 === 0) ? h : w;
+
+      const tmp = document.createElement('canvas');
+      tmp.width = nw;
+      tmp.height = nh;
+      const tctx = tmp.getContext('2d');
+
+      tctx.save();
+      tctx.translate(nw/2, nh/2);
+      tctx.rotate(rad);
+      tctx.drawImage(base, -w/2, -h/2);
+      tctx.restore();
+
+      base.width = nw;
+      base.height = nh;
+      bctx.clearRect(0,0,nw,nh);
+      bctx.drawImage(tmp, 0, 0);
+
+      render();
+      setStatus(`Döndürüldü (${deg}°).`);
+    }
+
+    function flip(horizontal){
+      if(!state.hasImage) return;
+      pushHistory();
+
+      const w = base.width;
+      const h = base.height;
+      const tmp = document.createElement('canvas');
+      tmp.width = w;
+      tmp.height = h;
+      const tctx = tmp.getContext('2d');
+
+      tctx.save();
+      if(horizontal){
+        tctx.translate(w, 0);
+        tctx.scale(-1, 1);
+      } else {
+        tctx.translate(0, h);
+        tctx.scale(1, -1);
+      }
+      tctx.drawImage(base, 0, 0);
+      tctx.restore();
+
+      bctx.clearRect(0,0,w,h);
+      bctx.drawImage(tmp, 0, 0);
+
+      render();
+      setStatus(horizontal ? 'Yatay çevrildi.' : 'Dikey çevrildi.');
+    }
+
+    function loadImageFromFile(file){
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+
+        const { w, h } = resizeToMax(img.width, img.height, MAX_SIDE);
+
+        base.width = w;
+        base.height = h;
+        bctx.clearRect(0,0,w,h);
+        bctx.drawImage(img, 0, 0, w, h);
+
+        state.hasImage = true;
+        state.history.length = 0;
+        state.future.length = 0;
+
+        enableUI(true);
+        syncHistoryButtons();
+        resetAdjustments();
+
+        setPreset('none');
+        render();
+        setStatus('Yüklendi. Düzenlemeye başlayabilirsin.');
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setStatus('Bu dosya okunamadı. (Evet, teknoloji harika.)');
+      };
+      img.src = url;
+    }
+
+    function resizeToMax(w, h, maxSide){
+      const max = Math.max(w, h);
+      if(max <= maxSide) return { w, h };
+      const scale = maxSide / max;
+      return { w: Math.round(w * scale), h: Math.round(h * scale) };
+    }
+
+    // -----------------------------
+    // Crop
+    // -----------------------------
+
+    function toggleCropMode(on){
+      state.crop.enabled = on;
+      state.crop.dragging = false;
+      state.crop.w = 0;
+      state.crop.h = 0;
+      drawCropOverlay();
+
+      cropApplyBtn.disabled = !on; // apply butonu crop moddayken aktif
+      cropCancelBtn.disabled = !on;
+      cropModeBtn.textContent = on ? 'Crop Mode (Açık)' : 'Crop Mode';
+      setStatus(on ? 'Crop açık: tıkla-sürükle, sonra Crop Apply.' : 'Crop kapandı.');
+    }
+
+    function drawCropOverlay(){
+      octx.clearRect(0,0,overlay.width, overlay.height);
+      if(!state.crop.enabled) return;
+
+      // karartma
+      octx.save();
+      octx.fillStyle = 'rgba(0,0,0,.35)';
+      octx.fillRect(0,0,overlay.width, overlay.height);
+
+      const r = normalizeRect(state.crop.x, state.crop.y, state.crop.w, state.crop.h);
+      if(r.w > 2 && r.h > 2){
+        // seçimi aç
+        octx.clearRect(r.x, r.y, r.w, r.h);
+        // çerçeve
+        octx.strokeStyle = 'rgba(255,255,255,.9)';
+        octx.lineWidth = 2;
+        octx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
+
+        // kılavuz
+        octx.strokeStyle = 'rgba(255,255,255,.35)';
+        octx.lineWidth = 1;
+        for(let i=1;i<=2;i++){
+          octx.beginPath();
+          octx.moveTo(r.x + (r.w*i/3), r.y);
+          octx.lineTo(r.x + (r.w*i/3), r.y + r.h);
+          octx.stroke();
+
+          octx.beginPath();
+          octx.moveTo(r.x, r.y + (r.h*i/3));
+          octx.lineTo(r.x + r.w, r.y + (r.h*i/3));
+          octx.stroke();
+        }
+      }
+      octx.restore();
+    }
+
+    function normalizeRect(x,y,w,h){
+      let nx = x, ny = y, nw = w, nh = h;
+      if(nw < 0){ nx = x + nw; nw = Math.abs(nw); }
+      if(nh < 0){ ny = y + nh; nh = Math.abs(nh); }
+      nx = clamp(nx, 0, base.width);
+      ny = clamp(ny, 0, base.height);
+      nw = clamp(nw, 0, base.width - nx);
+      nh = clamp(nh, 0, base.height - ny);
+      return {x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh)};
+    }
+
+    function applyCrop(){
+      if(!state.hasImage || !state.crop.enabled) return;
+      const r = normalizeRect(state.crop.x, state.crop.y, state.crop.w, state.crop.h);
+      if(r.w < 5 || r.h < 5){
+        setStatus('Crop seçimi çok küçük.');
+        return;
+      }
+
+      // Crop kalıcı işlem
+      pushHistory();
+
+      const tmp = document.createElement('canvas');
+      tmp.width = r.w;
+      tmp.height = r.h;
+      const tctx = tmp.getContext('2d');
+
+      // Not: crop, base'e uygulanır. (Önizleme filtrelerini crop'a dahil etmek istiyorsan önce Apply.)
+      tctx.drawImage(base, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+
+      base.width = r.w;
+      base.height = r.h;
+      bctx.clearRect(0,0,base.width, base.height);
+      bctx.drawImage(tmp, 0, 0);
+
+      toggleCropMode(false);
+      render();
+      setStatus('Crop uygulandı.');
+    }
+
+    function canvasPosFromEvent(e){
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      return { x, y };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if(!state.hasImage || !state.crop.enabled) return;
+      const p = canvasPosFromEvent(e);
+      state.crop.dragging = true;
+      state.crop.startX = p.x;
+      state.crop.startY = p.y;
+      state.crop.x = p.x;
+      state.crop.y = p.y;
+      state.crop.w = 0;
+      state.crop.h = 0;
+      drawCropOverlay();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if(!state.hasImage || !state.crop.enabled || !state.crop.dragging) return;
+      const p = canvasPosFromEvent(e);
+      state.crop.w = p.x - state.crop.startX;
+      state.crop.h = p.y - state.crop.startY;
+      drawCropOverlay();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if(!state.hasImage || !state.crop.enabled) return;
+      state.crop.dragging = false;
+      drawCropOverlay();
+    });
+
+    // -----------------------------
+    // Export
+    // -----------------------------
+
+    function exportImage(){
+      if(!state.hasImage) return;
+
+      // Export, önizleme (filtreli) haliyle çıksın.
+      const out = document.createElement('canvas');
+      out.width = base.width;
+      out.height = base.height;
+      const outCtx = out.getContext('2d');
+      outCtx.filter = cssFilterFromState();
+      outCtx.drawImage(base, 0, 0);
+
+      const mime = formatSel.value;
+      const q = Number(quality.value);
+      const dataUrl = out.toDataURL(mime, q);
+
+      const a = document.createElement('a');
+      const ext = mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'jpg');
+      a.download = `edited_${Date.now()}.${ext}`;
+      a.href = dataUrl;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setStatus('Export edildi (indirildi).');
+    }
+
+    // -----------------------------
+    // Events
+    // -----------------------------
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      loadImageFromFile(file);
+    });
+
+    // Sliders
+    [brightness, contrast, saturation, blur].forEach(inp => {
+      inp.addEventListener('input', () => {
+        updateVals();
+        render();
+      });
+    });
+
+    // Presets
+    presetGrid.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if(!chip || !state.hasImage) return;
+      setPreset(chip.dataset.preset);
+    });
+
+    // Transform
+    rotL.addEventListener('click', () => rotate(-90));
+    rotR.addEventListener('click', () => rotate(90));
+    flipH.addEventListener('click', () => flip(true));
+    flipV.addEventListener('click', () => flip(false));
+
+    // Apply/reset
+    applyBtn.addEventListener('click', applyAdjustments);
+    resetAdjBtn.addEventListener('click', () => {
+      resetAdjustments();
+      setStatus('Ayarlar sıfırlandı (önizleme).');
+    });
+
+    // Crop
+    cropModeBtn.addEventListener('click', () => {
+      if(!state.hasImage) return;
+      toggleCropMode(!state.crop.enabled);
+    });
+    cropCancelBtn.addEventListener('click', () => toggleCropMode(false));
+    cropApplyBtn.addEventListener('click', applyCrop);
+
+    // Export settings
+    quality.addEventListener('input', updateVals);
+    formatSel.addEventListener('change', () => {
+      const mime = formatSel.value;
+      const needsQ = (mime === 'image/jpeg' || mime === 'image/webp');
+      quality.disabled = !needsQ;
+      setStatus(needsQ ? 'Format seçildi. Quality aktif.' : 'PNG seçildi. Quality kapalı (PNG kayıpsız).');
+    });
+
+    // History buttons
+    undoBtn.addEventListener('click', undo);
+    redoBtn.addEventListener('click', redo);
+
+    // Reset
+    resetBtn.addEventListener('click', resetAll);
+
+    // Export
+    exportBtn.addEventListener('click', exportImage);
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if(!state.hasImage) return;
+      const z = (e.key.toLowerCase() === 'z');
+      const y = (e.key.toLowerCase() === 'y');
+      if(e.ctrlKey && z){
+        e.preventDefault();
+        undo();
+      }
+      if(e.ctrlKey && y){
+        e.preventDefault();
+        redo();
+      }
+      if(e.key === 'Escape' && state.crop.enabled){
+        toggleCropMode(false);
+      }
+    });
+
+    // Init
+    enableUI(false);
+    updateVals();
+    setPreset('none');
+    render();
+    setStatus('Fotoğraf yükle.');
+  </script>
+</body>
+</html>
