@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fotoğraf Editörü</title>
+  <title>WBA Stat Card Builder</title>
   <style>
     :root{
       color-scheme: light dark;
@@ -40,28 +40,21 @@
       align-items:center;
       justify-content: space-between;
     }
-    .brand{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      min-width: 240px;
-    }
+    .brand{ display:flex; gap:10px; align-items:center; }
     .dot{ width: 12px; height: 12px; border-radius: 99px; background: var(--accent); opacity:.9; }
     .brand h1{ font-size: 16px; margin:0; letter-spacing:.2px; }
     .brand span{ font-size: 12px; opacity: .75; }
-    .actions{ display:flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
     main{
       max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 360px 1fr;
       gap: 14px;
     }
     @media (max-width: 980px){
       main{ grid-template-columns: 1fr; }
-      .brand{ min-width: unset; }
     }
 
     .card{
@@ -71,12 +64,7 @@
       box-shadow: 0 10px 30px color-mix(in oklab, CanvasText 10%, transparent);
     }
 
-    .panel{
-      padding: 14px;
-      display:flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .panel{ padding: 14px; display:flex; flex-direction: column; gap: 12px; }
 
     .section{
       border: 1px dashed color-mix(in oklab, CanvasText 18%, transparent);
@@ -101,7 +89,7 @@
       padding: 10px 12px;
       border-radius: 12px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 13px;
       transition: transform .05s ease, filter .12s ease;
       user-select: none;
@@ -113,68 +101,28 @@
       border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
       background: color-mix(in oklab, var(--accent) 18%, var(--bg));
     }
-    .btn.danger{
-      border-color: color-mix(in oklab, #ff3b30 45%, var(--line));
-    }
 
-    .file{
-      display:flex;
-      gap: 10px;
-      align-items:center;
+    input[type="file"], input[type="text"], input[type="number"], select{
       width: 100%;
-    }
-    input[type="file"]{
-      width: 100%;
-      padding: 10px;
+      padding: 10px 12px;
       border: 1px solid var(--line);
       border-radius: 12px;
       background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
       color: var(--fg);
       font-size: 13px;
+      font-weight: 600;
     }
 
-    label{
-      font-size: 12px;
-      opacity: .85;
-    }
+    label{ font-size: 12px; opacity: .85; }
 
-    .control{
-      display:flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
+    .control{ display:flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
     input[type="range"]{ width: 100%; }
     .val{ font-variant-numeric: tabular-nums; opacity: .75; font-size: 12px; }
 
-    .presetGrid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .chip{
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      text-align:center;
-      user-select: none;
-      background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
-    }
-    .chip.active{
-      border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-      background: color-mix(in oklab, var(--accent) 14%, var(--bg));
-      font-weight: 700;
-    }
+    .two{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 420px){ .two{ grid-template-columns: 1fr; } }
 
-    .stage{
-      padding: 12px;
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .stage{ padding: 12px; display:flex; flex-direction: column; gap: 10px; }
 
     .canvasWrap{
       position: relative;
@@ -185,18 +133,12 @@
         radial-gradient( circle at 20% 20%, color-mix(in oklab, CanvasText 12%, transparent), transparent 45%),
         radial-gradient( circle at 80% 30%, color-mix(in oklab, CanvasText 10%, transparent), transparent 45%),
         color-mix(in oklab, Canvas 90%, CanvasText 10%);
-      min-height: 420px;
+      min-height: 520px;
       display:grid;
       place-items:center;
     }
 
     canvas{ display:block; max-width: 100%; height: auto; }
-
-    .overlay{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-    }
 
     .status{
       display:flex;
@@ -211,36 +153,22 @@
       font-size: 12px;
       opacity: .92;
     }
+
     .status code{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .muted{ opacity: .75; }
 
-    .help{
-      font-size: 12px;
-      line-height: 1.35;
-      opacity: .8;
-    }
-    .help b{ opacity: .95; }
-
-    select{
-      padding: 10px 12px;
-      border-radius: 12px;
+    .help{ font-size: 12px; line-height: 1.35; opacity: .8; }
+    .pill{
+      display:inline-flex;
+      gap: 6px;
+      align-items:center;
+      padding: 6px 10px;
       border: 1px solid var(--line);
-      background: color-mix(in oklab, var(--bg) 96%, CanvasText 4%);
-      color: var(--fg);
-      font-weight: 600;
-      font-size: 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      opacity:.9;
     }
-
-    .two{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 420px){
-      .two{ grid-template-columns: 1fr; }
-    }
-
-    .kbd{ border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; opacity:.85; }
+    .warn{ border-color: color-mix(in oklab, #ffcc00 55%, var(--line)); }
   </style>
 </head>
 <body>
@@ -249,14 +177,12 @@
       <div class="brand">
         <div class="dot" aria-hidden="true"></div>
         <div>
-          <h1>Fotoğraf Editörü</h1>
-          <span class="muted">Tek dosya, sıfır bağımlılık. Çünkü hayat zaten yeterince karmaşık.</span>
+          <h1>WBA Stat Card Builder</h1>
+          <span class="muted">İki görseli üst üste koyuyoruz, sonra da o panelin içine takım adını sıkıştırıyoruz. İnsanlık yine şaşırtmadı.</span>
         </div>
       </div>
-      <div class="actions">
-        <button class="btn" id="undoBtn" disabled>Undo</button>
-        <button class="btn" id="redoBtn" disabled>Redo</button>
-        <button class="btn danger" id="resetBtn" disabled>Reset</button>
+      <div class="row" style="gap:8px;">
+        <button class="btn" id="generateBtn" disabled>Generate</button>
         <button class="btn primary" id="exportBtn" disabled>Export</button>
       </div>
     </div>
@@ -265,105 +191,114 @@
   <main>
     <aside class="card panel">
       <div class="section">
-        <h2>1) Fotoğraf Yükle</h2>
-        <div class="file">
-          <input id="fileInput" type="file" accept="image/*" />
+        <h2>1) Görseller</h2>
+        <div class="control">
+          <label for="bgInput">Arkaplan (NBA oyuncu fotoğrafı)</label>
+          <input id="bgInput" type="file" accept="image/*" />
+        </div>
+        <div class="control" style="margin-bottom:0;">
+          <label for="statsInput">Veri görseli (RealApp panel screenshot)</label>
+          <input id="statsInput" type="file" accept="image/*" />
         </div>
         <div class="help" style="margin-top:8px;">
-          Büyük görselleri tarayıcı öldürmesin diye <b>en uzun kenarı 1600px</b>'e indiriyoruz.
+          <b>Not:</b> Şimdilik OCR yok. Paneli görselden <b>kırpıp</b> alıyoruz, sonra üstüne <b>takım adı</b> ve <b>logo</b> bindiriyoruz.
         </div>
       </div>
 
       <div class="section">
-        <h2>2) Dönüştür</h2>
-        <div class="row">
-          <button class="btn" id="rotL" disabled>⟲ 90°</button>
-          <button class="btn" id="rotR" disabled>⟳ 90°</button>
-          <button class="btn" id="flipH" disabled>↔ Flip</button>
-          <button class="btn" id="flipV" disabled>↕ Flip</button>
-        </div>
-        <div class="help" style="margin-top:8px;">
-          Bu butonlar <b>kalıcı</b> değişiklik yapar (Undo ile geri alırsın).
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>3) Ayarlar</h2>
-
+        <h2>2) Oyuncu ve Takım</h2>
         <div class="control">
-          <div class="row" style="justify-content: space-between; width:100%;">
-            <label for="brightness">Brightness</label>
-            <span class="val" id="bVal">0</span>
-          </div>
-          <input id="brightness" type="range" min="-100" max="100" value="0" disabled />
-        </div>
-
-        <div class="control">
-          <div class="row" style="justify-content: space-between; width:100%;">
-            <label for="contrast">Contrast</label>
-            <span class="val" id="cVal">0</span>
-          </div>
-          <input id="contrast" type="range" min="-100" max="100" value="0" disabled />
-        </div>
-
-        <div class="control">
-          <div class="row" style="justify-content: space-between; width:100%;">
-            <label for="saturation">Saturation</label>
-            <span class="val" id="sVal">0</span>
-          </div>
-          <input id="saturation" type="range" min="-100" max="100" value="0" disabled />
-        </div>
-
-        <div class="control" style="margin-bottom: 6px;">
-          <div class="row" style="justify-content: space-between; width:100%;">
-            <label for="blur">Blur</label>
-            <span class="val" id="blVal">0</span>
-          </div>
-          <input id="blur" type="range" min="0" max="10" step="1" value="0" disabled />
+          <label for="playerInput">Oyuncu adı</label>
+          <input id="playerInput" type="text" placeholder="Kawhi Leonard" list="playersList" />
+          <datalist id="playersList"></datalist>
         </div>
 
         <div class="row" style="justify-content: space-between;">
-          <button class="btn primary" id="applyBtn" disabled>Apply (Kalıcılaştır)</button>
-          <button class="btn" id="resetAdjBtn" disabled>Reset Ayarlar</button>
+          <span class="pill" id="teamPill">Takım: <b>-</b></span>
+          <span class="pill warn" id="teamWarn" style="display:none;">Takım bulunamadı</span>
         </div>
-        <div class="help" style="margin-top:8px;">
-          Slider'lar <b>önizleme</b> yapar. <b>Apply</b> basınca kalıcı olur (Undo ile geri alınır).
+
+        <div class="control" style="margin-top:10px;">
+          <label for="teamSelect">Takım seç (gerekirse manuel)</label>
+          <select id="teamSelect"></select>
+        </div>
+
+        <div class="control" style="margin-bottom:0;">
+          <label for="teamNameOverride">Panelde yazacak takım adı (değiştirilebilir)</label>
+          <input id="teamNameOverride" type="text" placeholder="Örn: Bochum United" />
         </div>
       </div>
 
       <div class="section">
-        <h2>4) Filtreler</h2>
-        <div class="presetGrid" id="presetGrid">
-          <div class="chip" data-preset="none">None</div>
-          <div class="chip" data-preset="grayscale">Gray</div>
-          <div class="chip" data-preset="sepia">Sepia</div>
-          <div class="chip" data-preset="invert">Invert</div>
-          <div class="chip" data-preset="vintage">Vintage</div>
-          <div class="chip" data-preset="cool">Cool</div>
+        <h2>3) Panel ve Çıktı</h2>
+
+        <div class="two">
+          <div class="control" style="margin-bottom:0;">
+            <label>Çıktı boyutu</label>
+            <input type="text" value="1080×1440 (3:4)" disabled />
+          </div>
+          <div class="control" style="margin-bottom:0;">
+            <label for="panelHeight">Panel yüksekliği</label>
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <span class="val">%</span>
+              <span class="val" id="panelHeightVal">44</span>
+            </div>
+            <input id="panelHeight" type="range" min="32" max="55" step="1" value="44" />
+          </div>
         </div>
-        <div class="help" style="margin-top:8px;">
-          Filtre seçimi de önizlemedir. <b>Apply</b> basınca kalıcı.
+
+        <div class="two" style="margin-top:10px;">
+          <div class="control" style="margin-bottom:0;">
+            <label for="panelInset">Panel kenar boşluğu</label>
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <span class="val">%</span>
+              <span class="val" id="panelInsetVal">4</span>
+            </div>
+            <input id="panelInset" type="range" min="0" max="10" step="1" value="4" />
+          </div>
+          <div class="control" style="margin-bottom:0;">
+            <label for="gradientStrength">Gradient gücü</label>
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <span class="val">%</span>
+              <span class="val" id="gradientVal">70</span>
+            </div>
+            <input id="gradientStrength" type="range" min="0" max="100" step="1" value="70" />
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:10px;">
+          <div class="control" style="margin-bottom:0;">
+            <label for="statsCropTop">Veri görseli panel başlangıcı (kırpma)</label>
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <span class="val">%</span>
+              <span class="val" id="cropTopVal">47</span>
+            </div>
+            <input id="statsCropTop" type="range" min="35" max="65" step="1" value="47" />
+          </div>
+          <div class="control" style="margin-bottom:0;">
+            <label for="statsCropSide">Panel yan kırpma (kırpma)</label>
+            <div class="row" style="justify-content: space-between; width:100%;">
+              <span class="val">%</span>
+              <span class="val" id="cropSideVal">7</span>
+            </div>
+            <input id="statsCropSide" type="range" min="0" max="20" step="1" value="7" />
+          </div>
+        </div>
+
+        <div class="control" style="margin-top:10px; margin-bottom:0;">
+          <label class="row" style="align-items:center; gap:8px;">
+            <input id="hideHashtags" type="checkbox" />
+            Hashtag satırını kapat (yer açmak için)
+          </label>
         </div>
       </div>
 
       <div class="section">
-        <h2>5) Kırpma</h2>
-        <div class="row">
-          <button class="btn" id="cropModeBtn" disabled>Crop Mode</button>
-          <button class="btn primary" id="cropApplyBtn" disabled>Crop Apply</button>
-          <button class="btn" id="cropCancelBtn" disabled>Cancel</button>
-        </div>
-        <div class="help" style="margin-top:8px;">
-          Crop Mode: tuvale tıklayıp sürükle. Sonra <b>Crop Apply</b>.
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Export Ayarları</h2>
+        <h2>Export</h2>
         <div class="two">
           <div class="control" style="margin-bottom:0;">
             <label for="format">Format</label>
-            <select id="format" disabled>
+            <select id="format">
               <option value="image/png">PNG</option>
               <option value="image/jpeg">JPG</option>
               <option value="image/webp">WEBP</option>
@@ -374,537 +309,521 @@
               <label for="quality">Quality (JPG/WEBP)</label>
               <span class="val" id="qVal">0.92</span>
             </div>
-            <input id="quality" type="range" min="0.4" max="1" step="0.01" value="0.92" disabled />
+            <input id="quality" type="range" min="0.4" max="1" step="0.01" value="0.92" />
           </div>
+        </div>
+
+        <div class="help" style="margin-top:8px;">
+          Logo dosyaları <code>./logos/</code> klasöründe olmalı. Dosya adları: <code>bakirkoynets.png</code> vs. <code>WBA.png</code>.
         </div>
       </div>
 
     </aside>
 
     <section class="card stage">
-      <div class="canvasWrap" id="canvasWrap">
-        <canvas id="canvas" width="960" height="540" aria-label="Fotoğraf Önizleme"></canvas>
-        <canvas class="overlay" id="overlay" width="960" height="540" aria-hidden="true"></canvas>
+      <div class="canvasWrap">
+        <canvas id="out" width="1080" height="1440" aria-label="Çıktı Önizleme"></canvas>
       </div>
 
       <div class="status">
         <div>
           <span class="muted">Durum:</span>
-          <span id="statusText">Fotoğraf yükle.</span>
+          <span id="statusText">İki görseli yükle.</span>
         </div>
         <div>
-          <span class="muted">Kısayol:</span>
-          <span class="kbd">Ctrl</span> + <span class="kbd">Z</span> Undo, <span class="kbd">Ctrl</span> + <span class="kbd">Y</span> Redo
-        </div>
-        <div>
-          <span class="muted">Boyut:</span>
-          <code id="dimText">-</code>
+          <span class="muted">Çıktı:</span>
+          <code>3:4 (1080×1440)</code>
         </div>
       </div>
 
       <div class="help">
-        <b>Not:</b> Bu editör tamamen tarayıcı içinde çalışır. Sunucu yok, takip yok, dram yok.
+        <b>Not:</b> Bu sürüm “panel görselini kırpıp yapıştırma” MVP’si. OCR ve tek tek istatistik çıkarımı bir sonraki bölüm.
       </div>
     </section>
   </main>
 
   <script>
-    // -----------------------------
-    // Basit, bağımlılıksız fotoğraf editörü (Canvas 2D)
-    // - Yükle, rotate/flip (kalıcı), slider ayarları + preset filtre (önizleme)
-    // - Apply: önizlemeyi kalıcılaştırır (Undo/Redo)
-    // - Crop: sürükle seç, uygula (kalıcı)
-    // - Export: PNG/JPG/WEBP
-    // -----------------------------
-
-    const MAX_SIDE = 1600; // import'ta en uzun kenarı sınırlıyoruz
-    const HISTORY_MAX = 8; // bellek dostu olmaya çalışıyoruz
+    // WBA Stat Card Builder (MVP)
+    // - Background image (player)
+    // - Stats screenshot image: crop and place as rounded panel
+    // - Replace realapp.com with team name (right aligned)
+    // - Replace avatar circle with team logo
+    // - Add black->transparent gradient layer between bg and panel
+    // - Add WBA watermark bottom-right
 
     const el = (id) => document.getElementById(id);
 
-    const fileInput = el('fileInput');
-    const canvas = el('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: false });
+    const bgInput = el('bgInput');
+    const statsInput = el('statsInput');
 
-    const overlay = el('overlay');
-    const octx = overlay.getContext('2d');
+    const playerInput = el('playerInput');
+    const playersList = el('playersList');
 
-    const statusText = el('statusText');
-    const dimText = el('dimText');
+    const teamPill = el('teamPill');
+    const teamWarn = el('teamWarn');
+    const teamSelect = el('teamSelect');
+    const teamNameOverride = el('teamNameOverride');
 
-    const undoBtn = el('undoBtn');
-    const redoBtn = el('redoBtn');
-    const resetBtn = el('resetBtn');
+    const panelHeight = el('panelHeight');
+    const panelInset = el('panelInset');
+    const gradientStrength = el('gradientStrength');
+    const statsCropTop = el('statsCropTop');
+    const statsCropSide = el('statsCropSide');
+    const hideHashtags = el('hideHashtags');
+
+    const panelHeightVal = el('panelHeightVal');
+    const panelInsetVal = el('panelInsetVal');
+    const gradientVal = el('gradientVal');
+    const cropTopVal = el('cropTopVal');
+    const cropSideVal = el('cropSideVal');
+
+    const generateBtn = el('generateBtn');
     const exportBtn = el('exportBtn');
-
-    const rotL = el('rotL');
-    const rotR = el('rotR');
-    const flipH = el('flipH');
-    const flipV = el('flipV');
-
-    const brightness = el('brightness');
-    const contrast = el('contrast');
-    const saturation = el('saturation');
-    const blur = el('blur');
-
-    const bVal = el('bVal');
-    const cVal = el('cVal');
-    const sVal = el('sVal');
-    const blVal = el('blVal');
-
-    const applyBtn = el('applyBtn');
-    const resetAdjBtn = el('resetAdjBtn');
-
-    const presetGrid = el('presetGrid');
-
-    const cropModeBtn = el('cropModeBtn');
-    const cropApplyBtn = el('cropApplyBtn');
-    const cropCancelBtn = el('cropCancelBtn');
 
     const formatSel = el('format');
     const quality = el('quality');
     const qVal = el('qVal');
 
-    // Offscreen base canvas: "kalıcı" görüntü burada durur.
-    const base = document.createElement('canvas');
-    const bctx = base.getContext('2d', { willReadFrequently: false });
+    const statusText = el('statusText');
 
+    // --- Canvas
+    const OUT_W = 1080;
+    const OUT_H = 1440;
+    const out = el('out');
+    const ctx = out.getContext('2d');
+
+    // --- Teams + logos + rosters
+    const TEAM_META = {
+      'Virginia Presidents': { logo: 'virginiapresidents.png' },
+      'Kushisland Warriors': { logo: 'kushislandwarriors.png' },
+      'Bakırköy NETS': { logo: 'bakirkoynets.png' },
+      'Haftanın Hitleri': { logo: 'haftaninhitleri.png' },
+      'Kangal Hastanesi': { logo: 'kangalhastanesi.png' },
+      'GroningenclerBirligi': { logo: 'groningenclerbirligi.png' },
+      'New England Brownies': { logo: 'newenglandbrownies.png' },
+      'LeBaron Thunder': { logo: 'lebaronthunder.png' },
+      'Los Pollos Hermanos': { logo: 'lospolloshermanos.png' },
+      'Bochum United': { logo: 'bochumunited.png' },
+      'Vezirköprü Semaverleri': { logo: 'vezirkoprusemaverleri.png' },
+      'Night City Samurais': { logo: 'nightcitysamurais.png' },
+      'Çandarlı Castles': { logo: 'candarlicastles.png' },
+      'OldSchool Blazers': { logo: 'oldschoolblazers.png' },
+    };
+
+    const ROSTERS = {
+      'Virginia Presidents': [
+        'Tyrese Maxey','Kevin Porter Jr.','Tim Hardaway Jr.','Mikal Bridges','John Collins','Miles Bridges','Jabari Smith Jr.','Jusuf Nurkić','LeBron James','Dylan Cardwell','Andrew Nembhard','Cedric Coward','Jalen Johnson','Mitchell Robinson'
+      ],
+      'Kushisland Warriors': [
+        'Cade Cunningham','Malik Monk','Jared McCain','Scottie Barnes','Keldon Johnson','Bennedict Mathurin','Jay Huff','Nikola Vučević','Collin Gillespie','Rudy Gobert','Collin Sexton','Jordan Poole','Brandon Williams','Coby White'
+      ],
+      'Bakırköy NETS': [
+        'Reed Sheppard','Ausar Thompson','Quentin Grimes','DeMar DeRozan','Kyle Filipowski','Naji Marshall','Andre Drummond','Victor Wembanyama','LaMelo Ball','Daniel Gafford','Shaedon Sharpe','Brandon Miller','Chet Holmgren','Gary Trent Jr.','Bradley Beal'
+      ],
+      'Haftanın Hitleri': [
+        'Payton Pritchard','Jaden Ivey','Egor Demin','Jimmy Butler III','Neemias Queta','Danny Wolf','Evan Mobley','Karl-Anthony Towns','Devin Vassell','Stephon Castle','Lonzo Ball','N. Alexander-Walker','Trey Murphy III','Franz Wagner','Aaron Gordon'
+      ],
+      'Kangal Hastanesi': [
+        'Ryan Rollins','Russell Westbrook','Paul George','Klay Thompson','Nikola Jović','Julius Randle','Paolo Banchero','Draymond Green','Devin Booker','Bub Carrington','Ja Morant','RJ Barrett','Marcus Smart','Jerami Grant'
+      ],
+      'GroningenclerBirligi': [
+        'Dennis Schröder','Nique Clifford','Amen Thompson','Jaime Jaquez Jr.','Brandon Ingram','Matas Buzelis','Moussa Diabaté','Maxime Raynaud','Desmond Bane','Bam Adebayo','Anthony Black','Kon Knueppel','Spencer Jones','Jrue Holiday','Nikola Jokić'
+      ],
+      'New England Brownies': [
+        'Donovan Mitchell','Pelle Larsson','Miles McBride','Aaron Nesmith','Anthony Davis','De\'Andre Hunter','Jarrett Allen','Toumani Camara','Myles Turner','Caleb Love','Immanuel Quickley','Naz Reid','Kyshawn George','Austin Reaves','Ryan Kalkbrenner'
+      ],
+      'LeBaron Thunder': [
+        'Tre Jones','Cooper Flagg','James Harden','Keegan Murray','Derik Queen','Michael Porter Jr.','Kel\'el Ware','Alperen Sengun','Wendell Carter Jr.','Bruce Brown','Onyeka Okongwu','Dyson Daniels','Marvin Bagley III','Kyrie Irving','D\'Angelo Russell'
+      ],
+      'Los Pollos Hermanos': [
+        'Isaiah Collier','Bilal Coulibaly','Grayson Allen','Tari Eason','Giannis Antetokounmpo','Jaden McDaniels','Kristaps Porziņģis','Jonas Valančiūnas','Jalen Brunson','Darius Garland','Jamal Murray','Sam Merrill','Christian Braun','Jakob Poeltl','Zach Edey'
+      ],
+      'Bochum United': [
+        'Stephen Curry','Ajay Mitchell','Trae Young','Kawhi Leonard','Zaccharie Risacher','Josh Hart','Jeremy Sochan','P.J. Washington','Royce O\'Neale','Dylan Harper','Ayo Dosunmu','Mark Williams','Santi Aldama','Ivica Zubac','Tyler Herro'
+      ],
+      'Vezirköprü Semaverleri': [
+        'Jalen Suggs','Keyonte George','Max Christie','Deni Avdija','Isaiah Stewart','Dillon Brooks','Sandro Mamukelashvili','Jaren Jackson Jr.','Lauri Markkanen','Steven Adams','Cason Wallace','Saddiq Bey','Luka Dončić','Zach LaVine','Isaiah Hartenstein'
+      ],
+      'Night City Samurais': [
+        'Derrick White','Andrew Wiggins','Anthony Edwards','Zion Williamson','Jalen Williams','Bobby Portis','Brook Lopez','Donovan Clingan','Jalen Duren','Davion Mitchell','Donte DiVincenzo','Jaylen Wells','Deandre Ayton','Gabe Vincent'
+      ],
+      'Çandarlı Castles': [
+        'VJ Edgecombe','Brandin Podziemski','CJ McCollum','Kelly Oubre Jr.','OG Anunoby','Kevin Durant','Alex Sarr','Yves Missi','Jonathan Kuminga','De\'Aaron Fox','Josh Giddey','Jaylon Tyson','Rui Hachimura','Jalen Green','Domantas Sabonis'
+      ],
+      'OldSchool Blazers': [
+        'Cam Spencer','Anfernee Simons','Norman Powell','Cam Thomas','Tobias Harris','Noah Clowney','Nic Claxton','Joel Embiid','Jaylen Brown','Peyton Watson','Shai Gilgeous-Alexander','Kyle Kuzma','Pascal Siakam'
+      ],
+    };
+
+    // --- Build player lookup + datalist
+    function normalize(str){
+      return (str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9\s\.\'-]/g,'')
+        .replace(/\s+/g,' ')
+        .trim();
+    }
+
+    const playerToTeams = new Map(); // normalizedPlayer -> Set(team)
+    const allPlayers = [];
+
+    for(const [team, players] of Object.entries(ROSTERS)){
+      for(const p of players){
+        allPlayers.push(p);
+        const key = normalize(p);
+        if(!playerToTeams.has(key)) playerToTeams.set(key, new Set());
+        playerToTeams.get(key).add(team);
+      }
+    }
+
+    // datalist
+    allPlayers.sort((a,b)=>a.localeCompare(b,'tr'));
+    playersList.innerHTML = allPlayers.map(p => `<option value="${escapeHtml(p)}"></option>`).join('');
+
+    // team select
+    const teamNames = Object.keys(TEAM_META).sort((a,b)=>a.localeCompare(b,'tr'));
+    teamSelect.innerHTML = teamNames.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#39;');
+    }
+
+    // --- Images
     const state = {
-      hasImage: false,
-      preset: 'none',
-      crop: {
-        enabled: false,
-        dragging: false,
-        startX: 0,
-        startY: 0,
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0,
-      },
-      history: [], // {w,h,data: ImageData}
-      future: [],
+      bgImg: null,
+      statsImg: null,
+      logoImg: null,
+      wbaImg: null,
+      selectedTeam: teamNames[0],
+      teamNameDisplay: teamNames[0],
+      teamNameUserEdited: false,
+      lastRenderOk: false,
     };
 
     function setStatus(msg){
       statusText.textContent = msg;
     }
 
-    function enableUI(on){
-      [undoBtn, redoBtn, resetBtn, exportBtn,
-       rotL, rotR, flipH, flipV,
-       brightness, contrast, saturation, blur,
-       applyBtn, resetAdjBtn,
-       cropModeBtn, cropApplyBtn, cropCancelBtn,
-       formatSel, quality
-      ].forEach(x => x.disabled = !on);
-    }
-
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-
-    function updateVals(){
-      bVal.textContent = brightness.value;
-      cVal.textContent = contrast.value;
-      sVal.textContent = saturation.value;
-      blVal.textContent = blur.value;
-      qVal.textContent = Number(quality.value).toFixed(2);
-    }
-
-    function setPreset(p){
-      state.preset = p;
-      [...presetGrid.querySelectorAll('.chip')].forEach(ch => {
-        ch.classList.toggle('active', ch.dataset.preset === p);
+    function loadFileAsImage(file){
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        // same-origin ise sorun yok, ama GitHub raw vs olursa CORS gerekir.
+        img.crossOrigin = 'anonymous';
+        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+        img.src = url;
       });
-      render();
     }
 
-    function resetAdjustments(){
-      brightness.value = 0;
-      contrast.value = 0;
-      saturation.value = 0;
-      blur.value = 0;
-      setPreset('none');
-      updateVals();
-      render();
+    function loadUrlAsImage(url){
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('URL image load failed: ' + url));
+        img.src = url;
+      });
     }
 
-    function cssFilterFromState(){
-      const b = Number(brightness.value);
-      const c = Number(contrast.value);
-      const s = Number(saturation.value);
-      const bl = Number(blur.value);
-
-      // Canvas filter: brightness(%) contrast(%) saturate(%) blur(px)
-      // 0 slider => 100%
-      const brightnessPct = 100 + b;
-      const contrastPct = 100 + c;
-      const saturatePct = 100 + s;
-
-      const preset = state.preset;
-      const presetFilter = {
-        none: '',
-        grayscale: ' grayscale(100%)',
-        sepia: ' sepia(100%)',
-        invert: ' invert(100%)',
-        vintage: ' sepia(30%) contrast(110%) saturate(85%)',
-        cool: ' hue-rotate(200deg) saturate(110%)',
-      }[preset] || '';
-
-      const blurPart = bl > 0 ? ` blur(${bl}px)` : '';
-
-      return `brightness(${brightnessPct}%) contrast(${contrastPct}%) saturate(${saturatePct}%)${blurPart}${presetFilter}`.trim();
+    function logoUrlFor(team){
+      const meta = TEAM_META[team];
+      if(!meta?.logo) return null;
+      return `./logos/${meta.logo}`;
     }
 
-    function fitCanvasTo(w, h){
-      canvas.width = w;
-      canvas.height = h;
-      overlay.width = w;
-      overlay.height = h;
-      dimText.textContent = `${w}×${h}`;
+    function detectTeamFromPlayerName(name){
+      const key = normalize(name);
+      const set = playerToTeams.get(key);
+      if(!set || set.size === 0) return { ok:false, teams:[] };
+      return { ok:true, teams:[...set] };
     }
 
-    function render(){
-      if(!state.hasImage){
-        // placeholder
-        fitCanvasTo(960, 540);
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = 'rgba(127,127,127,.15)';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = 'rgba(127,127,127,.55)';
-        ctx.font = '600 16px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Bir fotoğraf yükle (sol panel).', canvas.width/2, canvas.height/2);
-        octx.clearRect(0,0,overlay.width,overlay.height);
-        return;
+    function applyTeam(team, reason){
+      state.selectedTeam = team;
+      teamSelect.value = team;
+
+      if(!state.teamNameUserEdited){
+        state.teamNameDisplay = team;
+        teamNameOverride.value = '';
       }
 
-      fitCanvasTo(base.width, base.height);
-      ctx.save();
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.filter = cssFilterFromState();
-      ctx.drawImage(base, 0, 0);
-      ctx.restore();
-
-      drawCropOverlay();
+      if(reason === 'manual'){
+        // manuel seçince override sıfırlansın istemiyorsan kaldırırız
+      }
     }
 
-    function pushHistory(){
-      if(!state.hasImage) return;
-      const img = bctx.getImageData(0,0,base.width, base.height);
-      // Kopya
-      const copy = new ImageData(new Uint8ClampedArray(img.data), img.width, img.height);
-      state.history.push({ w: base.width, h: base.height, data: copy });
-      if(state.history.length > HISTORY_MAX) state.history.shift();
-      // Yeni işlem yapınca redo temizlenir
-      state.future.length = 0;
-      syncHistoryButtons();
+    function updateTeamUI(team, unknown){
+      teamPill.innerHTML = `Takım: <b>${escapeHtml(team)}</b>`;
+      teamWarn.style.display = unknown ? 'inline-flex' : 'none';
     }
 
-    function syncHistoryButtons(){
-      undoBtn.disabled = !state.hasImage || state.history.length === 0;
-      redoBtn.disabled = !state.hasImage || state.future.length === 0;
-    }
-
-    function restoreSnapshot(snap){
-      base.width = snap.w;
-      base.height = snap.h;
-      bctx.putImageData(snap.data, 0, 0);
-      render();
-      setStatus('Geri alındı.');
-    }
-
-    function undo(){
-      if(state.history.length === 0) return;
-      const current = bctx.getImageData(0,0,base.width, base.height);
-      const curCopy = new ImageData(new Uint8ClampedArray(current.data), current.width, current.height);
-      state.future.push({ w: base.width, h: base.height, data: curCopy });
-      const prev = state.history.pop();
-      restoreSnapshot(prev);
-      syncHistoryButtons();
-    }
-
-    function redo(){
-      if(state.future.length === 0) return;
-      const current = bctx.getImageData(0,0,base.width, base.height);
-      const curCopy = new ImageData(new Uint8ClampedArray(current.data), current.width, current.height);
-      state.history.push({ w: base.width, h: base.height, data: curCopy });
-      const next = state.future.pop();
-      restoreSnapshot(next);
-      syncHistoryButtons();
-      setStatus('İleri alındı.');
-    }
-
-    function resetAll(){
-      if(!state.hasImage) return;
-      // reset: ilk yüklenmiş haline dönmek için history'nin en eski snapshot'ına gitmek yok; onun yerine history+future temizleyip
-      // "orijinal"i ayrıca saklamak gerekirdi. MVP'de reset: en son commit edilmiş base'i bırakıp ayarları sıfırlarız.
-      // Daha gerçek reset istiyorsan, orijinali ayrıca saklarız.
-      resetAdjustments();
-      setStatus('Ayarlar sıfırlandı (kalıcı görüntü aynı).');
-    }
-
-    function applyAdjustments(){
-      if(!state.hasImage) return;
-      // Önce base'i history'e kaydet
-      pushHistory();
-
-      // view'deki filtreli görüntüyü base'e yaz
-      const tmp = document.createElement('canvas');
-      tmp.width = base.width;
-      tmp.height = base.height;
-      const tctx = tmp.getContext('2d');
-      tctx.filter = cssFilterFromState();
-      tctx.drawImage(base, 0, 0);
-
-      base.width = tmp.width;
-      base.height = tmp.height;
-      bctx.clearRect(0,0,base.width, base.height);
-      bctx.drawImage(tmp, 0, 0);
-
-      // Ayarları nötrle
-      resetAdjustments();
-      setStatus('Ayarlar kalıcılaştırıldı.');
-    }
-
-    function rotate(deg){
-      if(!state.hasImage) return;
-      pushHistory();
-
-      const rad = deg * Math.PI / 180;
-      const w = base.width;
-      const h = base.height;
-      const nw = (deg % 180 === 0) ? w : h;
-      const nh = (deg % 180 === 0) ? h : w;
-
-      const tmp = document.createElement('canvas');
-      tmp.width = nw;
-      tmp.height = nh;
-      const tctx = tmp.getContext('2d');
-
-      tctx.save();
-      tctx.translate(nw/2, nh/2);
-      tctx.rotate(rad);
-      tctx.drawImage(base, -w/2, -h/2);
-      tctx.restore();
-
-      base.width = nw;
-      base.height = nh;
-      bctx.clearRect(0,0,nw,nh);
-      bctx.drawImage(tmp, 0, 0);
-
-      render();
-      setStatus(`Döndürüldü (${deg}°).`);
-    }
-
-    function flip(horizontal){
-      if(!state.hasImage) return;
-      pushHistory();
-
-      const w = base.width;
-      const h = base.height;
-      const tmp = document.createElement('canvas');
-      tmp.width = w;
-      tmp.height = h;
-      const tctx = tmp.getContext('2d');
-
-      tctx.save();
-      if(horizontal){
-        tctx.translate(w, 0);
-        tctx.scale(-1, 1);
+    // --- Drawing helpers
+    function drawCover(ctx, img, x, y, w, h){
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+      const ir = iw/ih;
+      const r = w/h;
+      let sx=0, sy=0, sw=iw, sh=ih;
+      if(ir > r){
+        sh = ih;
+        sw = Math.round(sh * r);
+        sx = Math.round((iw - sw)/2);
       } else {
-        tctx.translate(0, h);
-        tctx.scale(1, -1);
+        sw = iw;
+        sh = Math.round(sw / r);
+        sy = Math.round((ih - sh)/2);
       }
-      tctx.drawImage(base, 0, 0);
-      tctx.restore();
-
-      bctx.clearRect(0,0,w,h);
-      bctx.drawImage(tmp, 0, 0);
-
-      render();
-      setStatus(horizontal ? 'Yatay çevrildi.' : 'Dikey çevrildi.');
+      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
     }
 
-    function loadImageFromFile(file){
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-
-        const { w, h } = resizeToMax(img.width, img.height, MAX_SIDE);
-
-        base.width = w;
-        base.height = h;
-        bctx.clearRect(0,0,w,h);
-        bctx.drawImage(img, 0, 0, w, h);
-
-        state.hasImage = true;
-        state.history.length = 0;
-        state.future.length = 0;
-
-        enableUI(true);
-        syncHistoryButtons();
-        resetAdjustments();
-
-        setPreset('none');
-        render();
-        setStatus('Yüklendi. Düzenlemeye başlayabilirsin.');
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        setStatus('Bu dosya okunamadı. (Evet, teknoloji harika.)');
-      };
-      img.src = url;
+    function roundRectPath(ctx, x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
     }
 
-    function resizeToMax(w, h, maxSide){
-      const max = Math.max(w, h);
-      if(max <= maxSide) return { w, h };
-      const scale = maxSide / max;
-      return { w: Math.round(w * scale), h: Math.round(h * scale) };
+    function drawLogoInCircle(ctx, img, cx, cy, r){
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.closePath();
+      ctx.clip();
+      // black-ish background
+      ctx.fillStyle = 'rgba(20,20,20,0.9)';
+      ctx.fillRect(cx-r, cy-r, r*2, r*2);
+      // contain
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+      const scale = Math.min((r*2)/iw, (r*2)/ih);
+      const w = iw*scale;
+      const h = ih*scale;
+      ctx.drawImage(img, cx - w/2, cy - h/2, w, h);
+      ctx.restore();
     }
 
-    // -----------------------------
-    // Crop
-    // -----------------------------
-
-    function toggleCropMode(on){
-      state.crop.enabled = on;
-      state.crop.dragging = false;
-      state.crop.w = 0;
-      state.crop.h = 0;
-      drawCropOverlay();
-
-      cropApplyBtn.disabled = !on; // apply butonu crop moddayken aktif
-      cropCancelBtn.disabled = !on;
-      cropModeBtn.textContent = on ? 'Crop Mode (Açık)' : 'Crop Mode';
-      setStatus(on ? 'Crop açık: tıkla-sürükle, sonra Crop Apply.' : 'Crop kapandı.');
-    }
-
-    function drawCropOverlay(){
-      octx.clearRect(0,0,overlay.width, overlay.height);
-      if(!state.crop.enabled) return;
-
-      // karartma
-      octx.save();
-      octx.fillStyle = 'rgba(0,0,0,.35)';
-      octx.fillRect(0,0,overlay.width, overlay.height);
-
-      const r = normalizeRect(state.crop.x, state.crop.y, state.crop.w, state.crop.h);
-      if(r.w > 2 && r.h > 2){
-        // seçimi aç
-        octx.clearRect(r.x, r.y, r.w, r.h);
-        // çerçeve
-        octx.strokeStyle = 'rgba(255,255,255,.9)';
-        octx.lineWidth = 2;
-        octx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);
-
-        // kılavuz
-        octx.strokeStyle = 'rgba(255,255,255,.35)';
-        octx.lineWidth = 1;
-        for(let i=1;i<=2;i++){
-          octx.beginPath();
-          octx.moveTo(r.x + (r.w*i/3), r.y);
-          octx.lineTo(r.x + (r.w*i/3), r.y + r.h);
-          octx.stroke();
-
-          octx.beginPath();
-          octx.moveTo(r.x, r.y + (r.h*i/3));
-          octx.lineTo(r.x + r.w, r.y + (r.h*i/3));
-          octx.stroke();
-        }
+    function fitTextRight(ctx, text, xRight, y, maxWidth, fontPx, weight=800){
+      let size = fontPx;
+      while(size > 10){
+        ctx.font = `${weight} ${Math.round(size)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+        const w = ctx.measureText(text).width;
+        if(w <= maxWidth) break;
+        size -= 1;
       }
-      octx.restore();
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(text, xRight, y);
     }
 
-    function normalizeRect(x,y,w,h){
-      let nx = x, ny = y, nw = w, nh = h;
-      if(nw < 0){ nx = x + nw; nw = Math.abs(nw); }
-      if(nh < 0){ ny = y + nh; nh = Math.abs(nh); }
-      nx = clamp(nx, 0, base.width);
-      ny = clamp(ny, 0, base.height);
-      nw = clamp(nw, 0, base.width - nx);
-      nh = clamp(nh, 0, base.height - ny);
-      return {x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh)};
-    }
+    // --- Render
+    async function render(){
+      ctx.clearRect(0,0,OUT_W,OUT_H);
 
-    function applyCrop(){
-      if(!state.hasImage || !state.crop.enabled) return;
-      const r = normalizeRect(state.crop.x, state.crop.y, state.crop.w, state.crop.h);
-      if(r.w < 5 || r.h < 5){
-        setStatus('Crop seçimi çok küçük.');
+      // Placeholder
+      if(!state.bgImg){
+        ctx.fillStyle = 'rgba(127,127,127,.12)';
+        ctx.fillRect(0,0,OUT_W,OUT_H);
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        ctx.font = '800 28px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Arkaplan fotoğrafını yükle.', OUT_W/2, OUT_H/2);
+        state.lastRenderOk = false;
+        exportBtn.disabled = true;
         return;
       }
 
-      // Crop kalıcı işlem
-      pushHistory();
+      // Background cover (3:4)
+      drawCover(ctx, state.bgImg, 0, 0, OUT_W, OUT_H);
 
-      const tmp = document.createElement('canvas');
-      tmp.width = r.w;
-      tmp.height = r.h;
-      const tctx = tmp.getContext('2d');
+      // Panel placement
+      const inset = (Number(panelInset.value)/100) * OUT_W;
+      const pH = (Number(panelHeight.value)/100) * OUT_H;
+      const pW = OUT_W - inset*2;
+      const pX = inset;
+      const pY = OUT_H - inset - pH;
+      const pR = Math.round(Math.min(pW, pH) * 0.05);
 
-      // Not: crop, base'e uygulanır. (Önizleme filtrelerini crop'a dahil etmek istiyorsan önce Apply.)
-      tctx.drawImage(base, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+      // Gradient between background and panel
+      const strength = Number(gradientStrength.value)/100;
+      const gTop = Math.max(0, pY - OUT_H*0.18);
+      const grad = ctx.createLinearGradient(0, gTop, 0, pY + pH);
+      grad.addColorStop(0, `rgba(0,0,0,0)`);
+      grad.addColorStop(0.55, `rgba(0,0,0,${0.25*strength})`);
+      grad.addColorStop(1, `rgba(0,0,0,${0.92*strength})`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, gTop, OUT_W, OUT_H - gTop);
 
-      base.width = r.w;
-      base.height = r.h;
-      bctx.clearRect(0,0,base.width, base.height);
-      bctx.drawImage(tmp, 0, 0);
+      // Draw panel from stats screenshot
+      if(state.statsImg){
+        // source crop
+        const topPct = Number(statsCropTop.value)/100;
+        const sidePct = Number(statsCropSide.value)/100;
+        const sw = state.statsImg.naturalWidth || state.statsImg.width;
+        const sh = state.statsImg.naturalHeight || state.statsImg.height;
 
-      toggleCropMode(false);
-      render();
-      setStatus('Crop uygulandı.');
+        const sx = Math.round(sw * sidePct);
+        const sy = Math.round(sh * sidePct); // NOTE: placeholder, replaced below
+        const sW = Math.round(sw * (1 - sidePct*2));
+        const sH = Math.round(sh * (1 - topPct));
+
+        // Clip rounded rect
+        ctx.save();
+        roundRectPath(ctx, pX, pY, pW, pH, pR);
+        ctx.clip();
+
+        // Compute cover for crop region
+        const cropRatio = sW/sH;
+        const panelRatio = pW/pH;
+        let csx = Math.round(sw * sidePct);
+        let csy = Math.round(sh * topPct);
+        let csw = sW;
+        let csh = sH;
+        if(cropRatio > panelRatio){
+          csw = Math.round(csh * panelRatio);
+          csx = Math.round(csx + (sW - csw)/2);
+        } else {
+          csh = Math.round(csw / panelRatio);
+          csy = Math.round(csy + (sH - csh)/2);
+        }
+        ctx.drawImage(state.statsImg, csx, csy, csw, csh, pX, pY, pW, pH);
+
+        // --- Patch 1: avatar circle -> team logo
+        if(state.logoImg){
+          const cx = pX + pW * 0.16;
+          const cy = pY + pH * 0.13;
+          const r  = pW * 0.058;
+          drawLogoInCircle(ctx, state.logoImg, cx, cy, r);
+        }
+
+        // --- Patch 2: "realapp.com" -> team name (right aligned)
+        const teamText = (teamNameOverride.value || state.teamNameDisplay || '').trim();
+        if(teamText){
+          const rx0 = pX + pW * 0.64;
+          const ry0 = pY + pH * 0.235;
+          const rw  = pW * 0.33;
+          const rh  = pH * 0.12;
+
+          // cover old text area
+          ctx.save();
+          ctx.fillStyle = 'rgba(0,0,0,0.78)';
+          roundRectPath(ctx, rx0, ry0, rw, rh, Math.min(12, rh*0.35));
+          ctx.fill();
+          ctx.restore();
+
+          // draw text (right aligned)
+          ctx.save();
+          ctx.fillStyle = 'rgba(255,255,255,0.95)';
+          const xRight = rx0 + rw - pW*0.02;
+          const yBase = ry0 + rh*0.72;
+          const maxW = rw - pW*0.04;
+          const baseFont = Math.max(14, pH * 0.06);
+          fitTextRight(ctx, teamText, xRight, yBase, maxW, baseFont, 800);
+          ctx.restore();
+        }
+
+        // Optional: hashtags hide
+        if(hideHashtags.checked){
+          const hx = pX + pW * 0.10;
+          const hy = pY + pH * 0.38;
+          const hw = pW * 0.60;
+          const hh = pH * 0.10;
+          ctx.save();
+          ctx.fillStyle = 'rgba(0,0,0,0.72)';
+          roundRectPath(ctx, hx, hy, hw, hh, Math.min(10, hh*0.35));
+          ctx.fill();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      } else {
+        // no stats image
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        roundRectPath(ctx, pX, pY, pW, pH, pR);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = '700 18px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Veri görselini yükle (panel).', pX + pW/2, pY + pH/2);
+        ctx.restore();
+      }
+
+      // WBA watermark
+      if(!state.wbaImg){
+        try{ state.wbaImg = await loadUrlAsImage('./logos/WBA.png'); }
+        catch{ /* ignore */ }
+      }
+      if(state.wbaImg){
+        const wmW = OUT_W * 0.085;
+        const ratio = (state.wbaImg.naturalHeight || state.wbaImg.height) / (state.wbaImg.naturalWidth || state.wbaImg.width);
+        const wmH = wmW * ratio;
+        const pad = OUT_W * 0.03;
+        const x = OUT_W - pad - wmW;
+        const y = OUT_H - pad - wmH;
+        ctx.save();
+        ctx.globalAlpha = 0.72;
+        ctx.drawImage(state.wbaImg, x, y, wmW, wmH);
+        ctx.restore();
+      }
+
+      state.lastRenderOk = Boolean(state.bgImg && state.statsImg);
+      exportBtn.disabled = !state.lastRenderOk;
     }
 
-    function canvasPosFromEvent(e){
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-      return { x, y };
+    async function refreshLogo(){
+      const url = logoUrlFor(state.selectedTeam);
+      if(!url){ state.logoImg = null; return; }
+      try{
+        state.logoImg = await loadUrlAsImage(url);
+      } catch {
+        state.logoImg = null;
+      }
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-      if(!state.hasImage || !state.crop.enabled) return;
-      const p = canvasPosFromEvent(e);
-      state.crop.dragging = true;
-      state.crop.startX = p.x;
-      state.crop.startY = p.y;
-      state.crop.x = p.x;
-      state.crop.y = p.y;
-      state.crop.w = 0;
-      state.crop.h = 0;
-      drawCropOverlay();
-    });
+    function syncVals(){
+      panelHeightVal.textContent = panelHeight.value;
+      panelInsetVal.textContent = panelInset.value;
+      gradientVal.textContent = gradientStrength.value;
+      cropTopVal.textContent = statsCropTop.value;
+      cropSideVal.textContent = statsCropSide.value;
+      qVal.textContent = Number(quality.value).toFixed(2);
 
-    window.addEventListener('mousemove', (e) => {
-      if(!state.hasImage || !state.crop.enabled || !state.crop.dragging) return;
-      const p = canvasPosFromEvent(e);
-      state.crop.w = p.x - state.crop.startX;
-      state.crop.h = p.y - state.crop.startY;
-      drawCropOverlay();
-    });
+      const mime = formatSel.value;
+      const needsQ = (mime === 'image/jpeg' || mime === 'image/webp');
+      quality.disabled = !needsQ;
+    }
 
-    window.addEventListener('mouseup', () => {
-      if(!state.hasImage || !state.crop.enabled) return;
-      state.crop.dragging = false;
-      drawCropOverlay();
-    });
+    // --- Generate
+    async function generate(){
+      if(!state.bgImg || !state.statsImg){
+        setStatus('İki görseli de yükle.');
+        return;
+      }
 
-    // -----------------------------
-    // Export
-    // -----------------------------
+      // logo
+      await refreshLogo();
+
+      await render();
+      setStatus('Hazır. Export alabilirsin.');
+    }
 
     function exportImage(){
-      if(!state.hasImage) return;
-
-      // Export, önizleme (filtreli) haliyle çıksın.
-      const out = document.createElement('canvas');
-      out.width = base.width;
-      out.height = base.height;
-      const outCtx = out.getContext('2d');
-      outCtx.filter = cssFilterFromState();
-      outCtx.drawImage(base, 0, 0);
+      if(!state.lastRenderOk){
+        setStatus('Önce Generate. (Evet, sırayla.)');
+        return;
+      }
 
       const mime = formatSel.value;
       const q = Number(quality.value);
@@ -912,7 +831,7 @@
 
       const a = document.createElement('a');
       const ext = mime === 'image/png' ? 'png' : (mime === 'image/webp' ? 'webp' : 'jpg');
-      a.download = `edited_${Date.now()}.${ext}`;
+      a.download = `wba_${Date.now()}.${ext}`;
       a.href = dataUrl;
       document.body.appendChild(a);
       a.click();
@@ -921,95 +840,100 @@
       setStatus('Export edildi (indirildi).');
     }
 
-    // -----------------------------
-    // Events
-    // -----------------------------
-
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      loadImageFromFile(file);
+    // --- Events
+    bgInput.addEventListener('change', async (e) => {
+      const f = e.target.files?.[0];
+      if(!f) return;
+      setStatus('Arkaplan yükleniyor...');
+      try{
+        state.bgImg = await loadFileAsImage(f);
+        await render();
+        setStatus('Arkaplan tamam. Şimdi veri görseli.');
+      } catch {
+        setStatus('Arkaplan okunamadı.');
+      }
+      generateBtn.disabled = !(state.bgImg && state.statsImg);
     });
 
-    // Sliders
-    [brightness, contrast, saturation, blur].forEach(inp => {
-      inp.addEventListener('input', () => {
-        updateVals();
-        render();
+    statsInput.addEventListener('change', async (e) => {
+      const f = e.target.files?.[0];
+      if(!f) return;
+      setStatus('Veri görseli yükleniyor...');
+      try{
+        state.statsImg = await loadFileAsImage(f);
+        await render();
+        setStatus('Veri görseli tamam. İstersen oyuncu adı gir.');
+      } catch {
+        setStatus('Veri görseli okunamadı.');
+      }
+      generateBtn.disabled = !(state.bgImg && state.statsImg);
+    });
+
+    playerInput.addEventListener('input', async () => {
+      const name = playerInput.value.trim();
+      if(!name){
+        updateTeamUI('-', true);
+        teamWarn.style.display = 'none';
+        return;
+      }
+
+      const res = detectTeamFromPlayerName(name);
+      if(!res.ok){
+        updateTeamUI('-', true);
+        teamWarn.style.display = 'inline-flex';
+        setStatus('Takım bulunamadı. Takımı dropdown\'dan seç.');
+        return;
+      }
+
+      if(res.teams.length === 1){
+        applyTeam(res.teams[0], 'auto');
+        updateTeamUI(res.teams[0], false);
+        teamWarn.style.display = 'none';
+        await refreshLogo();
+        await render();
+      } else {
+        // birden fazla takım çıkarsa (pratikte beklemiyoruz)
+        updateTeamUI('-', true);
+        teamWarn.style.display = 'inline-flex';
+        setStatus('Aynı isim birden fazla takımda. Takımı manuel seç.');
+      }
+    });
+
+    teamSelect.addEventListener('change', async () => {
+      applyTeam(teamSelect.value, 'manual');
+      updateTeamUI(teamSelect.value, false);
+      await refreshLogo();
+      await render();
+    });
+
+    teamNameOverride.addEventListener('input', async () => {
+      state.teamNameUserEdited = true;
+      state.teamNameDisplay = teamNameOverride.value;
+      await render();
+    });
+
+    [panelHeight, panelInset, gradientStrength, statsCropTop, statsCropSide].forEach(inp => {
+      inp.addEventListener('input', async () => {
+        syncVals();
+        await render();
       });
     });
 
-    // Presets
-    presetGrid.addEventListener('click', (e) => {
-      const chip = e.target.closest('.chip');
-      if(!chip || !state.hasImage) return;
-      setPreset(chip.dataset.preset);
-    });
+    hideHashtags.addEventListener('change', render);
 
-    // Transform
-    rotL.addEventListener('click', () => rotate(-90));
-    rotR.addEventListener('click', () => rotate(90));
-    flipH.addEventListener('click', () => flip(true));
-    flipV.addEventListener('click', () => flip(false));
+    formatSel.addEventListener('change', syncVals);
+    quality.addEventListener('input', syncVals);
 
-    // Apply/reset
-    applyBtn.addEventListener('click', applyAdjustments);
-    resetAdjBtn.addEventListener('click', () => {
-      resetAdjustments();
-      setStatus('Ayarlar sıfırlandı (önizleme).');
-    });
-
-    // Crop
-    cropModeBtn.addEventListener('click', () => {
-      if(!state.hasImage) return;
-      toggleCropMode(!state.crop.enabled);
-    });
-    cropCancelBtn.addEventListener('click', () => toggleCropMode(false));
-    cropApplyBtn.addEventListener('click', applyCrop);
-
-    // Export settings
-    quality.addEventListener('input', updateVals);
-    formatSel.addEventListener('change', () => {
-      const mime = formatSel.value;
-      const needsQ = (mime === 'image/jpeg' || mime === 'image/webp');
-      quality.disabled = !needsQ;
-      setStatus(needsQ ? 'Format seçildi. Quality aktif.' : 'PNG seçildi. Quality kapalı (PNG kayıpsız).');
-    });
-
-    // History buttons
-    undoBtn.addEventListener('click', undo);
-    redoBtn.addEventListener('click', redo);
-
-    // Reset
-    resetBtn.addEventListener('click', resetAll);
-
-    // Export
+    generateBtn.addEventListener('click', generate);
     exportBtn.addEventListener('click', exportImage);
 
-    // Keyboard shortcuts
-    window.addEventListener('keydown', (e) => {
-      if(!state.hasImage) return;
-      const z = (e.key.toLowerCase() === 'z');
-      const y = (e.key.toLowerCase() === 'y');
-      if(e.ctrlKey && z){
-        e.preventDefault();
-        undo();
-      }
-      if(e.ctrlKey && y){
-        e.preventDefault();
-        redo();
-      }
-      if(e.key === 'Escape' && state.crop.enabled){
-        toggleCropMode(false);
-      }
-    });
-
     // Init
-    enableUI(false);
-    updateVals();
-    setPreset('none');
+    applyTeam(state.selectedTeam, 'auto');
+    updateTeamUI('-', false);
+    syncVals();
+
+    // First render placeholder
     render();
-    setStatus('Fotoğraf yükle.');
   </script>
 </body>
 </html>
